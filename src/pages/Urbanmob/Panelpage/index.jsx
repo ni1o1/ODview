@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { Tabs, Layout, Button, Menu, Switch } from 'antd';
-import Hourlytraj from '../Hourlytraj';
+import ODview from '../ODview';
 import { useSubscribe, useUnsubscribe } from '@/utils/usePubSub';
 
 import {
@@ -38,15 +38,15 @@ export default function Panelpage() {
     <Menu 
       mode="inline"
       onClick={handleClick}
-      defaultSelectedKeys={['hourlytraj']}
+      defaultSelectedKeys={['ODview']}
       style={{
         borderRight: 0,
         'overflowX': 'hidden',
         'overflowY': 'auto'
       }}
     >
-      <SubMenu key="sub1" icon={<NodeIndexOutlined />} title="Trajectory">
-        <Menu.Item key="hourlytraj" icon={<NodeIndexOutlined />}>Trajectory</Menu.Item>
+      <SubMenu key="sub1" icon={<NodeIndexOutlined />} title="OD view">
+        <Menu.Item key="ODview" icon={<NodeIndexOutlined />}>OD view</Menu.Item>
       </SubMenu>
     </Menu>
     <Button type="text" onClick={toggleCollapsed} style={{ margin: '10px 16px' }}>
@@ -55,7 +55,7 @@ export default function Panelpage() {
   </Sider>
 
   )
-  const [activepage, setactivepage] = useState('hourlytraj')
+  const [activepage, setactivepage] = useState('ODview')
 
   //订阅activepage，检测到activepage一但改变，就更新tab
   unsubscribe('activepage')
@@ -68,8 +68,8 @@ export default function Panelpage() {
     <Layout>
       <Content>
         <Tabs tabPosition="left" size='small' renderTabBar={(a, b) => menu} activeKey={activepage}>
-          <TabPane key="hourlytraj" >
-            <Hourlytraj />
+          <TabPane key="ODview" >
+            <ODview />
           </TabPane>
         </Tabs>
       </Content>

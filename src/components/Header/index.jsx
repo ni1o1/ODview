@@ -33,12 +33,12 @@ export default function Header(props) {
             {collapsed ? <PageHeader
                 className="site-page-header"
                 key="site-page-header"
-                title="城市群可达性分析系统"
+                title="OD View"
                 subTitle=''
                 avatar={{ src: 'images/logodark_3durbanmob.png', shape: 'square' }}
                 {...props}
                 extra={[
-                    <>
+                    <div key='settings1'>
                         <Dropdown key='settings' overlay={menu} trigger={['click']}>
                             <Button key='Settingbuttom' type="text" >
                                 <SettingOutlined />
@@ -47,7 +47,7 @@ export default function Header(props) {
                         <Button key='navicollapsed' type="text" onClick={toggleCollapsed}>
                             {React.createElement(collapsed ? UpOutlined : DownOutlined)}
                         </Button>
-                    </>
+                    </div>
                 ]}
             >
             </PageHeader> : <Button key='navicollapsed' type="text" onClick={toggleCollapsed}>
