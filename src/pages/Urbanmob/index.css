@@ -1,0 +1,42 @@
+.smallworldailogo {
+    position: absolute;
+    right: 10px;
+    bottom: 25px;
+    width: 200px;
+    z-index: 1;
+}
+
+.panel {
+    max-height: 94vh;
+    z-index: 1;
+    margin: 10px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.playinfo {
+    background-color: #fff;
+    position: absolute;
+    align-self: center;
+    width: 50vw;
+    height: 50px;
+    left: 0vh;
+    top: 0vh;
+    transform: translate(-58%, -50%);
+    z-index: 1;
+}
+
+.playinfocont {
+    position: absolute;
+    align-self: center;
+    width: 0px;
+    height: 0px;
+    left: 76vw;
+    top: 88vh;
+    z-index: 0;
+    visibility: hidden;
+}
+
+#deckgl-wrapper {
+    overflow: hidden;
+}

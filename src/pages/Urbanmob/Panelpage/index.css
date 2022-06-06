@@ -1,0 +1,54 @@
+.ant-tabs-content {
+    width: 42vw;
+    margin-left: -24px;
+}
+
+@font-face {
+    font-family: 'iconfont';
+    /* Project id 3165595 */
+    src: url('//at.alicdn.com/t/font_3165595_4efhdydr3av.woff2?t=1647687166471') format('woff2'), url('//at.alicdn.com/t/font_3165595_4efhdydr3av.woff?t=1647687166471') format('woff'), url('//at.alicdn.com/t/font_3165595_4efhdydr3av.ttf?t=1647687166471') format('truetype');
+}
+
+.iconfont {
+    font-family: "iconfont" !important;
+    font-size: 16px;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-population:before {
+    content: "\e650";
+}
+
+.icon-jianzhu:before {
+    content: "\e64f";
+}
+
+.icon-area:before {
+    content: "\e65c";
+}
+
+.icon-adv:before {
+    content: "\e638";
+}
+
+.icon-adv2:before {
+    content: "\e801";
+}
+
+.icon-camrotate:before {
+    content: "\e64c";
+}
+
+.icon-trash:before {
+    content: "\e652";
+}
+
+.icon-selectarea:before {
+    content: "\e625";
+}
+
+.icon-firstperson:before {
+    content: "\e602";
+}

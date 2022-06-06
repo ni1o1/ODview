@@ -1,0 +1,7 @@
+.urbanmoblogo {
+    position: absolute;
+    left: 10px;
+    bottom: 20px;
+    width: 60px;
+    z-index: 1;
+}
