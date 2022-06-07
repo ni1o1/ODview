@@ -175,7 +175,7 @@ export default function Deckmap() {
 
   useEffect(() => {
     if (locations.length > 0) {
-      setViewState({ ...viewState, longitude: locations[0].lon, latitude: locations[0].lat })
+      setViewState({ ...viewState, longitude: locations[parseInt(locations.length/2)].lon, latitude: locations[parseInt(locations.length/2)].lat })
     }
   }, [locations])
 const [flowcount,setflowcount] = useState(0)

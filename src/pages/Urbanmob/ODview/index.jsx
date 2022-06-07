@@ -12,6 +12,8 @@ import {
     setflows_tmp,
     setconfig_tmp
 } from '@/redux/actions/traj'
+import { downloadFile } from '@/utils/downloadFile';
+import axios from 'axios'
 
 const { Title, Paragraph, Text, Link } = Typography;
 
@@ -42,7 +44,7 @@ export default function ODview() {
         []
     );
     const { traj } = useMappedState(mapState);
-    const { config } = traj
+    const { flows, locations, config } = traj
     /*
       ---------------OD数据读取---------------
     */
@@ -133,13 +135,25 @@ export default function ODview() {
         for (let key in locations_tmp) {
             locations.push({ id: key, count: locations_tmp[key], lon: parseFloat(key.split(',')[0]), lat: parseFloat(key.split(',')[1]) })
         }
-        const maxflow = flows.reduce((x,y)=>{return x.count>y.count?x:y}).count
+        const maxflow = flows.reduce((x, y) => { return x.count > y.count ? x : y }).count
         setmaxflow(maxflow)
-        setconfig({ ...config, maxTopFlowsDisplayNum:maxflow})
-        console.log({ ...config, maxTopFlowsDisplayNum:maxflow})
+        setconfig({ ...config, maxTopFlowsDisplayNum: maxflow })
+        console.log({ ...config, maxTopFlowsDisplayNum: maxflow })
         setflows(flows)
         setlocations(locations)
     }
+
+    useEffect(() => {
+        axios.get('/data/flows.json').then(response => {
+            const flows = response.data
+            setflows(flows)
+        })
+        axios.get('/data/locations.json').then(response => {
+            const locations = response.data
+            setlocations(locations)
+        })
+    }
+        , [])
     /*
       ---------------设置改变---------------
     */
@@ -162,6 +176,7 @@ export default function ODview() {
                                 <Col>
                                     <Upload showUploadList={false} beforeUpload={handleupload_traj}><Button type='primary'>Import OD</Button></Upload>
                                 </Col>
+                                {/* <Button type='primary' onClick={()=>{downloadFile(flows, "flows");downloadFile(locations, "locations")}}>downloadFile</Button> */}
                             </Row>
                         </Panel>
                         <Panel header="OD settings" key="Traj-Settings">
@@ -248,7 +263,7 @@ export default function ODview() {
                                         </Form.Item>
                                     </Col>
                                     <Divider />
-                                <Title level={4}>Fade</Title>
+                                    <Title level={4}>Fade</Title>
 
                                     <Col span={24}>
                                         <Form.Item name="fadeEnabled" label="fadeEnabled">
