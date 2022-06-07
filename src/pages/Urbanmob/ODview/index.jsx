@@ -116,19 +116,43 @@ export default function ODview() {
             const sname = f[SLON] + ',' + f[SLAT]
             const ename = f[ELON] + ',' + f[ELAT]
             if (typeof locations_tmp[sname] == 'undefined') {
-                locations_tmp[sname] = parseFloat(f[COUNT])
+                if (COUNT == '=1') {
+                    locations_tmp[sname] = 1
+                } else {
+                    locations_tmp[sname] = parseFloat(f[COUNT])
+                }
             } else {
-                locations_tmp[sname] += parseFloat(f[COUNT])
+                if (COUNT == '=1') {
+                    locations_tmp[sname] += 1
+                } else {
+                    locations_tmp[sname] += parseFloat(f[COUNT])
+                }
             }
             if (typeof locations_tmp[ename] == 'undefined') {
-                locations_tmp[ename] = parseFloat(f[COUNT])
+                if (COUNT == '=1') {
+                    locations_tmp[ename] = 1
+                } else {
+                    locations_tmp[ename] = parseFloat(f[COUNT])
+                }
             } else {
-                locations_tmp[ename] += parseFloat(f[COUNT])
+                if (COUNT == '=1') {
+                    locations_tmp[ename] += 1
+                } else {
+                    locations_tmp[ename] += parseFloat(f[COUNT])
+                }
             }
-            return {
-                origin: sname,
-                dest: ename,
-                count: parseFloat(f[COUNT])
+            if (COUNT == '=1') {
+                return {
+                    origin: sname,
+                    dest: ename,
+                    count: 1
+                }
+            } else {
+                return {
+                    origin: sname,
+                    dest: ename,
+                    count: parseFloat(f[COUNT])
+                }
             }
         })
         const locations = []
@@ -343,7 +367,7 @@ export default function ODview() {
                         <Col span={4}>
                             <Form.Item name="COUNT" label="count">
                                 <Select style={{ width: 120 }}>
-                                    {tableinfo.columns.map(v => { return <Option value={v.key}>{v.key}</Option> })}
+                                    {[...tableinfo.columns, { key: '=1' }].map(v => { return <Option value={v.key}>{v.key}</Option> })}
                                 </Select>
                             </Form.Item>
                         </Col>
