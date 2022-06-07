@@ -144,11 +144,11 @@ export default function ODview() {
     }
 
     useEffect(() => {
-        axios.get('/data/flows.json').then(response => {
+        axios.get('data/flows.json').then(response => {
             const flows = response.data
             setflows(flows)
         })
-        axios.get('/data/locations.json').then(response => {
+        axios.get('data/locations.json').then(response => {
             const locations = response.data
             setlocations(locations)
         })
