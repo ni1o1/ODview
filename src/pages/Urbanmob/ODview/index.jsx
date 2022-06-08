@@ -159,10 +159,8 @@ export default function ODview() {
         for (let key in locations_tmp) {
             locations.push({ id: key, count: locations_tmp[key], lon: parseFloat(key.split(',')[0]), lat: parseFloat(key.split(',')[1]) })
         }
-        const maxflow = flows.reduce((x, y) => { return x.count > y.count ? x : y }).count
-        setmaxflow(maxflow)
-        setconfig({ ...config, maxTopFlowsDisplayNum: maxflow })
-        console.log({ ...config, maxTopFlowsDisplayNum: maxflow })
+        setmaxflow(flows.reduce((x, y) => { return x.count > y.count ? x : y }).count)
+        setconfig({ ...config, maxTopFlowsDisplayNum: flows.reduce((x, y) => { return x.count > y.count ? x : y }).count })
         setflows(flows)
         setlocations(locations)
     }
@@ -170,14 +168,16 @@ export default function ODview() {
     useEffect(() => {
         axios.get('data/flows.json').then(response => {
             const flows = response.data
-            setflows(flows)
+            axios.get('data/locations.json').then(response => {
+                const locations = response.data
+                
+                setlocations(locations)
+                setflows(flows)
+                setmaxflow( flows.reduce((x, y) => { return x.count > y.count ? x : y }).count)
+                setconfig({ ...config, maxTopFlowsDisplayNum:  flows.reduce((x, y) => { return x.count > y.count ? x : y }).count })
+            })
         })
-        axios.get('data/locations.json').then(response => {
-            const locations = response.data
-            setlocations(locations)
-        })
-    }
-        , [])
+    }, [])
     /*
       ---------------设置改变---------------
     */
@@ -251,16 +251,7 @@ export default function ODview() {
                                             <Switch size="small" checked={config.darkMode} />
                                         </Form.Item>
                                     </Col>
-                                    <Col span={24}>
-                                        <Form.Item name="maxTopFlowsDisplayNum" label="maxTopFlowsDisplayNum">
-                                            <Slider
-                                                min={0}
-                                                max={maxflow}
-                                                step={1}
-                                                value={typeof config.maxTopFlowsDisplayNum === 'number' ? config.maxTopFlowsDisplayNum : 0}
-                                            />
-                                        </Form.Item>
-                                    </Col>
+                                    
                                 </Row>
 
                                 <Divider />

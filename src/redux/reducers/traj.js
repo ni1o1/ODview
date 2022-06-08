@@ -13,7 +13,7 @@ const initState = {
         clusteringAuto: true,
         clusteringLevel: 10,
         darkMode: true,
-        maxTopFlowsDisplayNum: 100,
+        maxTopFlowsDisplayNum: 8398,
     },
 }
 export default function trajReducer(preState = initState, action) {

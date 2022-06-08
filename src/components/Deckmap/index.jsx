@@ -1,5 +1,5 @@
 /* global window */
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { _MapContext as MapContext, StaticMap, NavigationControl, ScaleControl, FlyToInterpolator } from 'react-map-gl';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import DeckGL from '@deck.gl/react';
@@ -16,9 +16,8 @@ import {
 } from '@/redux/actions/traj'
 //flowmap
 import {
-  FlowMapLayer,
+  FlowmapLayer,
 } from '@flowmap.gl/layers';
-
 import './index.css';
 
 const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoibmkxbzEiLCJhIjoiY2t3ZDgzMmR5NDF4czJ1cm84Z3NqOGt3OSJ9.yOYP6pxDzXzhbHfyk3uORg';
@@ -175,162 +174,172 @@ export default function Deckmap() {
 
   useEffect(() => {
     if (locations.length > 0) {
-      setViewState({ ...viewState, longitude: locations[parseInt(locations.length/2)].lon, latitude: locations[parseInt(locations.length/2)].lat })
+      setViewState({ ...viewState, longitude: locations[parseInt(locations.length / 2)].lon, latitude: locations[parseInt(locations.length / 2)].lat })
     }
   }, [locations])
-const [flowcount,setflowcount] = useState(0)
+  const [flowcount, setflowcount] = useState(0)
   function getTooltipText(info) {
-    
-    if(!info.layer){
 
-    }else{
-      if(info.layer.id==='my-flowmap-layer'){
-        return `Count:${flowcount}`
-        //console.log(info)
+    if (!info.layer) {
+    } else {
+      if (info.layer.id === 'my-flowmap-layer') {
+        console.log(info.object)
+        if (info.object) {
+          if (info.object.type == 'flow') {
+            return `Count: ${info.object.count}`
+          }
+          if (info.object.type == 'location') {
+            return `In: ${info.object.totals.incomingCount}\nOut: ${info.object.totals.outgoingCount}`
+          }
+        }
+
       }
     }
   }
   const getTooltip = useCallback(info => getTooltipText(info));
-const handelhover = (info) => { 
-  setflowcount(info.count)
-}
-  
-
-//#endregion
-/*
----------------地图图层设置---------------
-*/
-//#region
-
-const layers = [
-  fristperson_isshow ? new TileLayer({
-    // https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_servers
-    data: `https://api.mapbox.com/styles/v1/mapbox/${mapStyle}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibmkxbzEiLCJhIjoiY2t3ZDgzMmR5NDF4czJ1cm84Z3NqOGt3OSJ9.yOYP6pxDzXzhbHfyk3uORg`,
-    minZoom: 0,
-    maxZoom: 19,
-    tileSize: 512,
-    renderSubLayers: props => {
-      const {
-        bbox: { west, south, east, north }
-      } = props.tile;
-      return new BitmapLayer(props, {
-        data: null,
-        image: props.data,
-        bounds: [west, south, east, north]
-      });
+  const handelhover = (info, event) => {
+    if (info) {
+      setflowcount(info.count)
     }
-  }) : null,
-  fristperson_isshow ? new IconLayer({//第一人称位置
-    id: 'ref-point',
-    data: [{
-      color: [68, 142, 247],
-      coords: [viewState.longitude, viewState.latitude]
-    }],
-    iconAtlas: 'images/firstperson.png',
-    iconMapping: {
-      marker: { x: 0, y: 0, width: 200, height: 200, mask: true }
-    },
-    sizeScale: 5,
-    getIcon: d => 'marker',
-    getPosition: d => [...d.coords, 30],
-    getSize: d => 5,
-    getColor: d => d.color
-  }) : null,
-  new FlowMapLayer({
-    id: 'my-flowmap-layer',
-    data: { locations, flows },
-    opacity: config.opacity,
-    pickable: true,
-    colorScheme: config.colorScheme,
-    clusteringEnabled: config.clusteringEnabled,
-    clusteringAuto: config.clusteringAuto,
-    clusteringLevel: config.clusteringLevel,
-    animationEnabled: config.animationEnabled,
-    locationTotalsEnabled: config.locationTotalsEnabled,
-    fadeOpacityEnabled: config.fadeOpacityEnabled,
-    fadeEnabled: config.fadeEnabled,
-    fadeAmount: config.fadeAmount,
-    darkMode: config.darkMode,
-    maxTopFlowsDisplayNum: config.maxTopFlowsDisplayNum,
-    /*       
-          fadeAmount: config.fadeAmount,
-          locationTotalsEnabled: config.locationTotalsEnabled,
-          locationLabelsEnabled: config.locationLabelsEnabled,
-          animationEnabled: config.animationEnabled,
-          adaptiveScalesEnabled: config.adaptiveScalesEnabled,
-          highlightColor: config.highlightColor, */
-    getFlowMagnitude: (flow) => flow.count || 0,
-    getFlowOriginId: (flow) => flow.origin,
-    getFlowDestId: (flow) => flow.dest,
-    getLocationId: (loc) => loc.id,
-    getLocationCentroid: (location) => [location.lon, location.lat],
-    onHover: handelhover
-  })
-];
-//#endregion
-/*
----------------渲染地图---------------
-*/
-//#region
-const onViewStateChange = (newviewState) => {
-  const { viewId } = newviewState
-  const nviewState = newviewState.viewState
-  if (viewId == 'firstPerson') {
-    setViewState({ ...viewState, longitude: nviewState.longitude, latitude: nviewState.latitude, bearing: nviewState.bearing })
-  } else if (viewId == 'baseMap') {
-    setViewState({ ...viewState, longitude: nviewState.longitude, latitude: nviewState.latitude, pitch: nviewState.pitch, bearing: nviewState.bearing, zoom: nviewState.zoom })
   }
-}
-return (
-  <div>
-    <DeckGL
-      layers={layers}
-      initialViewState={{
-        'baseMap': viewState, 'firstPerson': {
-          ...viewState, pitch: 0, zoom: 0, position: [0, 0, 2], transitionDuration: undefined,
-          transitionInterpolator: undefined
-        }
-      }}
-      effects={theme.effects}
-      controller={{ doubleClickZoom: false, inertia: true, touchRotate: true }}
-      style={{ zIndex: 0 }}
-      ContextProvider={MapContext.Provider}
-      onViewStateChange={onViewStateChange}
-      getTooltip={getTooltip}
-    >
-      <MapView id="baseMap"
-        controller={true}
-        y="0%"
-        height="100%"
-        position={
-          [0, 0, 0]}>
-        <StaticMap reuseMaps key='mapboxgl-ctrl-bottom-left'
-          mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
-          mapStyle={`mapbox://styles/mapbox/${mapStyle}`}
-          preventStyleDiffing={true} >
-          <div className='mapboxgl-ctrl-bottom-left' style={{ bottom: '20px' }}>
-            <ScaleControl maxWidth={100} unit="metric" />
+
+
+  //#endregion
+  /*
+  ---------------地图图层设置---------------
+  */
+  //#region
+
+  const layers = [
+    fristperson_isshow ? new TileLayer({
+      // https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_servers
+      data: `https://api.mapbox.com/styles/v1/mapbox/${mapStyle}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibmkxbzEiLCJhIjoiY2t3ZDgzMmR5NDF4czJ1cm84Z3NqOGt3OSJ9.yOYP6pxDzXzhbHfyk3uORg`,
+      minZoom: 0,
+      maxZoom: 19,
+      tileSize: 512,
+      renderSubLayers: props => {
+        const {
+          bbox: { west, south, east, north }
+        } = props.tile;
+        return new BitmapLayer(props, {
+          data: null,
+          image: props.data,
+          bounds: [west, south, east, north]
+        });
+      }
+    }) : null,
+    fristperson_isshow ? new IconLayer({//第一人称位置
+      id: 'ref-point',
+      data: [{
+        color: [68, 142, 247],
+        coords: [viewState.longitude, viewState.latitude]
+      }],
+      iconAtlas: 'images/firstperson.png',
+      iconMapping: {
+        marker: { x: 0, y: 0, width: 200, height: 200, mask: true }
+      },
+      sizeScale: 5,
+      getIcon: d => 'marker',
+      getPosition: d => [...d.coords, 30],
+      getSize: d => 5,
+      getColor: d => d.color
+    }) : null,
+    new FlowmapLayer({
+      id: 'my-flowmap-layer',
+      data: { locations, flows },
+      opacity: config.opacity,
+      pickable: true,
+      colorScheme: config.colorScheme,
+      clusteringEnabled: config.clusteringEnabled,
+      clusteringAuto: config.clusteringAuto,
+      clusteringLevel: config.clusteringLevel,
+      animationEnabled: config.animationEnabled,
+      locationTotalsEnabled: config.locationTotalsEnabled,
+      fadeOpacityEnabled: config.fadeOpacityEnabled,
+      fadeEnabled: config.fadeEnabled,
+      fadeAmount: config.fadeAmount,
+      darkMode: config.darkMode,
+      /*       
+            fadeAmount: config.fadeAmount,
+            locationTotalsEnabled: config.locationTotalsEnabled,
+            locationLabelsEnabled: config.locationLabelsEnabled,
+            animationEnabled: config.animationEnabled,
+            adaptiveScalesEnabled: config.adaptiveScalesEnabled,
+            highlightColor: config.highlightColor, */
+      getFlowMagnitude: (flow) => flow.count || 0,
+      getFlowOriginId: (flow) => flow.origin,
+      getFlowDestId: (flow) => flow.dest,
+      getLocationId: (loc) => loc.id,
+      getLocationLat: (loc) => loc.lat,
+      getLocationLon: (loc) => loc.lon,
+      getLocationCentroid: (location) => [location.lon, location.lat],
+      onHover: handelhover,
+    })
+  ];
+  //#endregion
+  /*
+  ---------------渲染地图---------------
+  */
+  //#region
+  const onViewStateChange = (newviewState) => {
+    const { viewId } = newviewState
+    const nviewState = newviewState.viewState
+    if (viewId == 'firstPerson') {
+      setViewState({ ...viewState, longitude: nviewState.longitude, latitude: nviewState.latitude, bearing: nviewState.bearing })
+    } else if (viewId == 'baseMap') {
+      setViewState({ ...viewState, longitude: nviewState.longitude, latitude: nviewState.latitude, pitch: nviewState.pitch, bearing: nviewState.bearing, zoom: nviewState.zoom })
+    }
+  }
+  return (
+    <div>
+      <DeckGL
+        layers={layers}
+        initialViewState={{
+          'baseMap': viewState, 'firstPerson': {
+            ...viewState, pitch: 0, zoom: 0, position: [0, 0, 2], transitionDuration: undefined,
+            transitionInterpolator: undefined
+          }
+        }}
+        effects={theme.effects}
+        controller={{ doubleClickZoom: false, inertia: true, touchRotate: true }}
+        style={{ zIndex: 0 }}
+        ContextProvider={MapContext.Provider}
+        onViewStateChange={onViewStateChange}
+        getTooltip={getTooltip}
+      >
+        <MapView id="baseMap"
+          controller={true}
+          y="0%"
+          height="100%"
+          position={
+            [0, 0, 0]}>
+          <StaticMap reuseMaps key='mapboxgl-ctrl-bottom-left'
+            mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
+            mapStyle={`mapbox://styles/mapbox/${mapStyle}`}
+            preventStyleDiffing={true} >
+            <div className='mapboxgl-ctrl-bottom-left' style={{ bottom: '20px' }}>
+              <ScaleControl maxWidth={100} unit="metric" />
+            </div>
+          </StaticMap>
+          <div className='mapboxgl-ctrl-bottom-right' style={{ bottom: '80px' }}>
+            <NavigationControl onViewportChange={viewport => setViewState(viewport)} />
+            {cameraTools}
           </div>
-        </StaticMap>
-        <div className='mapboxgl-ctrl-bottom-right' style={{ bottom: '80px' }}>
-          <NavigationControl onViewportChange={viewport => setViewState(viewport)} />
-          {cameraTools}
-        </div>
-      </MapView>
-      {fristperson_isshow && (<FirstPersonView id="firstPerson"
-        controller={{ scrollZoom: false, dragRotate: true, inertia: true }}
-        far={10000}
-        focalDistance={1.5}
-        x={'68%'}
-        y={20}
-        width={'30%'}
-        height={'50%'}
-        clear={true}>
-        <div style={minimapBackgroundStyle} /> </FirstPersonView>)}
-        
-    </DeckGL>
-    
-  </div>
-);
+        </MapView>
+        {fristperson_isshow && (<FirstPersonView id="firstPerson"
+          controller={{ scrollZoom: false, dragRotate: true, inertia: true }}
+          far={10000}
+          focalDistance={1.5}
+          x={'68%'}
+          y={20}
+          width={'30%'}
+          height={'50%'}
+          clear={true}>
+          <div style={minimapBackgroundStyle} /> </FirstPersonView>)}
+
+      </DeckGL>
+
+    </div>
+  );
 }
 //#endregion
