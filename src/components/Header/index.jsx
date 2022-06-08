@@ -19,10 +19,9 @@ export default function Header(props) {
     };
     const menu = (<Menu>
         <SubMenu key='Mapstyle' title="Mapstyle" icon={<GlobalOutlined />}>
-            <Menu.Item key="dark" onClick={() => { publish('mapstyle', "dark-v10") }}>Dark</Menu.Item>
-            <Menu.Item key="light" onClick={() => { publish('mapstyle', "light-v10") }}>Light</Menu.Item>
-            <Menu.Item key="satellite" onClick={() => { publish('mapstyle', "satellite-v9") }}>Satellite</Menu.Item>
-            <Menu.Item key="streets" onClick={() => { publish('mapstyle', "streets-v10") }}>Streets</Menu.Item>
+            <Menu.Item key="dark" onClick={() => { publish('mapstyle', "cjetnd20i1vbi2qqxbh0by7p8") }}>Dark</Menu.Item>
+            <Menu.Item key="light" onClick={() => { publish('mapstyle', "cl38pr5lx001f15nyyersk7in") }}>Light</Menu.Item>
+            <Menu.Item key="satellite" onClick={() => { publish('mapstyle', "cjv36gyklf43q1fnuwibiuetl") }}>Cali Terrain</Menu.Item>
             <Menu.Item key="outdoors" onClick={() => { publish('mapstyle', "outdoors-v10") }}>Outdoors</Menu.Item>
         </SubMenu>
     </Menu>

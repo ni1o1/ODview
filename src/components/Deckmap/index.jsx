@@ -94,9 +94,8 @@ export default function Deckmap() {
     pitch: 0,
     bearing: 0
   });
-
   //默认地图底图
-  const [mapStyle, setMapStyle] = React.useState('dark-v9');
+  const [mapStyle, setMapStyle] = React.useState('cl38pedc7000415lagttlrs8g');
   const publish = usePublish();
 
   //订阅地图样式
@@ -183,7 +182,6 @@ export default function Deckmap() {
     if (!info.layer) {
     } else {
       if (info.layer.id === 'my-flowmap-layer') {
-        console.log(info.object)
         if (info.object) {
           if (info.object.type == 'flow') {
             return `Count: ${info.object.count}`
@@ -315,7 +313,7 @@ export default function Deckmap() {
             [0, 0, 0]}>
           <StaticMap reuseMaps key='mapboxgl-ctrl-bottom-left'
             mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
-            mapStyle={`mapbox://styles/mapbox/${mapStyle}`}
+            mapStyle={`mapbox://styles/ni1o1/${mapStyle}`}
             preventStyleDiffing={true} >
             <div className='mapboxgl-ctrl-bottom-left' style={{ bottom: '20px' }}>
               <ScaleControl maxWidth={100} unit="metric" />
