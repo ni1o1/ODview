@@ -205,7 +205,7 @@ export default function ODview() {
                                         <p className="ant-upload-drag-icon">
                                             <InboxOutlined />
                                         </p>
-                                        <p className="ant-upload-text">点击此处导入数据（此操作不会上传数据到网络）</p>
+                                        <p className="ant-upload-text">点击或将数据拖到此处导入数据（此操作不会上传数据到网络）</p>
                                         <p className="ant-upload-hint">
                                         数据至少需要四列，包括起点经纬度（slon、slat）与终点经纬度（elon、elat）。可以有计数列（count），如果没有计数列，则在count下拉选=1
                                         </p>
