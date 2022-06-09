@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { Typography, Divider, Col, Upload, message, Switch, Table, Modal, Row, Button, Slider, Card, Form, Select, Collapse, Tooltip } from 'antd';
 import {
-    InfoCircleOutlined
+    InfoCircleOutlined, InboxOutlined
 } from '@ant-design/icons';
 import { nanoid } from 'nanoid';
 
@@ -15,6 +15,8 @@ import {
 import { downloadFile } from '@/utils/downloadFile';
 import axios from 'axios'
 
+
+const { Dragger } = Upload;
 const { Title, Paragraph, Text, Link } = Typography;
 
 const csv = require('csvtojson')
@@ -50,6 +52,7 @@ export default function ODview() {
     */
     //#region
     const handleupload_traj = (file) => {
+        console.log(file)
         message.loading({ content: '读取数据中', key: 'readcsv', duration: 0 })
         return new Promise(resolve => {
 
@@ -170,11 +173,11 @@ export default function ODview() {
             const flows = response.data
             axios.get('data/locations.json').then(response => {
                 const locations = response.data
-                
+
                 setlocations(locations)
                 setflows(flows)
-                setmaxflow( flows.reduce((x, y) => { return x.count > y.count ? x : y }).count)
-                setconfig({ ...config, maxTopFlowsDisplayNum:  flows.reduce((x, y) => { return x.count > y.count ? x : y }).count })
+                setmaxflow(flows.reduce((x, y) => { return x.count > y.count ? x : y }).count)
+                setconfig({ ...config, maxTopFlowsDisplayNum: flows.reduce((x, y) => { return x.count > y.count ? x : y }).count })
             })
         })
     }, [])
@@ -192,23 +195,30 @@ export default function ODview() {
     return (
         <>
             <Col span={24}>
-                <Card title="OD Flowmap" extra={<Tooltip title='Import OD data to show flow map'><InfoCircleOutlined /></Tooltip>}
+                <Card title="OD流向图" extra={<Tooltip title='Import OD data to show flow map'><InfoCircleOutlined /></Tooltip>}
                     bordered={false}>
                     <Collapse defaultActiveKey={['Trajectory-Echarts-1', "Traj-Settings"]}>
-                        <Panel header="Data Manage" key="Trajectory-Echarts-1">
+                        <Panel header="导入数据" key="Trajectory-Echarts-1">
                             <Row gutters={4}>
                                 <Col>
-                                    <Upload showUploadList={false} beforeUpload={handleupload_traj}><Button type='primary'>Import OD</Button></Upload>
+                                    <Dragger maxCount={1} beforeUpload={handleupload_traj}>
+                                        <p className="ant-upload-drag-icon">
+                                            <InboxOutlined />
+                                        </p>
+                                        <p className="ant-upload-text">点击此处导入数据（此操作不会上传数据到网络）</p>
+                                        <p className="ant-upload-hint">
+                                        数据至少需要四列，包括起点经纬度（slon、slat）与终点经纬度（elon、elat）。可以有计数列（count），如果没有计数列，则在count下拉选=1
+                                        </p>
+                                    </Dragger>
                                 </Col>
                                 {/* <Button type='primary' onClick={()=>{downloadFile(flows, "flows");downloadFile(locations, "locations")}}>downloadFile</Button> */}
                             </Row>
                         </Panel>
-                        <Panel header="OD settings" key="Traj-Settings">
-                            <Form
-                                {...{
-                                    labelCol: { span: 16 },
-                                    wrapperCol: { span: 8 },
-                                }}
+                        <Panel header="OD设置" key="Traj-Settings">
+                            <Form {...{
+                                labelCol: { span: 16 },
+                                wrapperCol: { span: 8 },
+                            }}
                                 size="small"
                                 name="basic"
                                 layout='inline'
@@ -217,17 +227,17 @@ export default function ODview() {
                                 autoComplete="off"
                                 onValuesChange={handleconfigchange}
                             >
-                                <Title level={4}>Basic</Title>
+                                <Title level={4}>基础设置</Title>
                                 <Row gutters={4}>
                                     <Col span={24}>
-                                        <Form.Item name="colorScheme" label="colorScheme">
+                                        <Form.Item label="颜色" name="colorScheme">
                                             <Select defaultValue='Teal'>
                                                 {['Blues', 'BluGrn', 'BluYl', 'BrwnYl', 'BuGn', 'BuPu', 'Burg', 'BurgYl', 'Cool', 'DarkMint', 'Emrld', 'GnBu', 'Grayish', 'Greens', 'Greys', 'Inferno', 'Magenta', 'Magma', 'Mint', 'Oranges', 'OrRd', 'OrYel', 'Peach', 'Plasma', 'PinkYl', 'PuBu', 'PuBuGn', 'PuRd', 'Purp', 'Purples', 'PurpOr', 'RdPu', 'RedOr', 'Reds', 'Sunset', 'SunsetDark', 'Teal', 'TealGrn', 'Viridis', 'Warm', 'YlGn', 'YlGnBu', 'YlOrBr', 'YlOrRd'].map(v => { return <Option value={v}>{v}</Option> })}
                                             </Select>
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
-                                        <Form.Item name="opacity" label="opacity">
+                                        <Form.Item label="透明度" name="opacity">
                                             <Slider
                                                 min={0}
                                                 max={1}
@@ -237,38 +247,38 @@ export default function ODview() {
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
-                                        <Form.Item name="animationEnabled" label="animationEnabled">
+                                        <Form.Item label="动画特效" name="animationEnabled">
                                             <Switch size="small" checked={config.animationEnabled} />
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
-                                        <Form.Item name="locationTotalsEnabled" label="locationTotalsEnabled">
+                                        <Form.Item label="显示节点" name="locationTotalsEnabled">
                                             <Switch size="small" checked={config.locationTotalsEnabled} />
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
-                                        <Form.Item name="darkMode" label="darkMode">
+                                        <Form.Item label="黑色模式（地图样式为light时使用）" name="darkMode">
                                             <Switch size="small" checked={config.darkMode} />
                                         </Form.Item>
                                     </Col>
-                                    
+
                                 </Row>
 
                                 <Divider />
-                                <Title level={4}>Cluster</Title>
+                                <Title level={4}>聚类</Title>
                                 <Row gutters={4}>
                                     <Col span={24}>
-                                        <Form.Item name="clusteringEnabled" label="clusteringEnabled">
+                                        <Form.Item label="是否聚类" name="clusteringEnabled">
                                             <Switch size="small" checked={config.clusteringEnabled} />
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
-                                        <Form.Item name="clusteringAuto" label="clusteringAuto">
+                                        <Form.Item label="自动聚类参数" name="clusteringAuto">
                                             <Switch size="small" checked={config.clusteringAuto} />
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
-                                        <Form.Item name="clusteringLevel" label="clusteringLevel">
+                                        <Form.Item label="聚类层数" name="clusteringLevel">
                                             <Slider
                                                 min={0}
                                                 max={20}
@@ -278,20 +288,20 @@ export default function ODview() {
                                         </Form.Item>
                                     </Col>
                                     <Divider />
-                                    <Title level={4}>Fade</Title>
+                                    <Title level={4}>褪色</Title>
 
                                     <Col span={24}>
-                                        <Form.Item name="fadeEnabled" label="fadeEnabled">
+                                        <Form.Item label="是否褪色" name="fadeEnabled">
                                             <Switch size="small" checked={config.fadeEnabled} />
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
-                                        <Form.Item name="fadeOpacityEnabled" label="fadeOpacityEnabled">
+                                        <Form.Item label="褪色透明" name="fadeOpacityEnabled">
                                             <Switch size="small" checked={config.fadeOpacityEnabled} />
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
-                                        <Form.Item name="fadeAmount" label="fadeAmount">
+                                        <Form.Item label="褪色比例" name="fadeAmount">
                                             <Slider
                                                 min={0}
                                                 max={100}
