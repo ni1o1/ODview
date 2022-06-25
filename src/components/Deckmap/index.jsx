@@ -14,6 +14,7 @@ import {
   setlocations_tmp,
   setflows_tmp
 } from '@/redux/actions/traj'
+
 //flowmap
 import {
   FlowmapLayer,
@@ -30,14 +31,18 @@ export default function Deckmap() {
   //#region
   const mapState = useCallback(
     state => ({
-      traj: state.traj
+      traj: state.traj,
+      layer: state.layer
     }),
     []
   );
-  const { traj } = useMappedState(mapState);
+  const { traj, layer } = useMappedState(mapState);
+
   const { locations, flows, config } = traj
+  const { layerdata } = layer
   //dispatch
   const dispatch = useDispatch()
+
   //#endregion
   /*
   ---------------地图底图设置---------------
@@ -95,7 +100,7 @@ export default function Deckmap() {
     bearing: 0
   });
   //默认地图底图
-  const [mapStyle, setMapStyle] = React.useState('cl38pedc7000415lagttlrs8g');
+  const [mapStyle, setMapStyle] = React.useState('cl38pr5lx001f15nyyersk7in');
   const publish = usePublish();
 
   //订阅地图样式
@@ -159,14 +164,14 @@ export default function Deckmap() {
         onClick={rotatecam}
         style={{ opacity: interval == 2000 ? 1 : 0.2 }}
       > <span className="iconfont icon-camrotate" /></button>
-      <button
+      {/*       <button
         title="fristpersoncontrol"
         onClick={() => {
           setfristperson_isshow(!fristperson_isshow)
         }}
         style={{ opacity: fristperson_isshow ? 1 : 0.2 }}
       >
-        <span className="iconfont icon-firstperson" /></button>
+        <span className="iconfont icon-firstperson" /></button> */}
     </div>
   );
 
@@ -201,13 +206,10 @@ export default function Deckmap() {
     }
   }
 
-
   //#endregion
   /*
   ---------------地图图层设置---------------
   */
-  //#region
-
   const layers = [
     fristperson_isshow ? new TileLayer({
       // https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_servers
@@ -242,8 +244,8 @@ export default function Deckmap() {
       getSize: d => 5,
       getColor: d => d.color
     }) : null,
-    new FlowmapLayer({
-      id: 'my-flowmap-layer',
+new FlowmapLayer({
+      id: 'OD',
       data: { locations, flows },
       opacity: config.opacity,
       pickable: true,
@@ -273,7 +275,7 @@ export default function Deckmap() {
       getLocationCentroid: (location) => [location.lon, location.lat],
       onHover: handelhover,
     })
-  ];
+  ]
   //#endregion
   /*
   ---------------渲染地图---------------

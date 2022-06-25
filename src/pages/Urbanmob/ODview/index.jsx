@@ -197,8 +197,8 @@ export default function ODview() {
             <Col span={24}>
                 <Card title="OD流向图" extra={<Tooltip title='Import OD data to show flow map'><InfoCircleOutlined /></Tooltip>}
                     bordered={false}>
-                    <Collapse defaultActiveKey={['Trajectory-Echarts-1', "Traj-Settings"]}>
-                        <Panel header="导入数据" key="Trajectory-Echarts-1">
+                    <Collapse defaultActiveKey={['ImportOD', "Settings",'Layers']}>
+                        <Panel header="导入OD数据" key="ImportOD">
                             <Row gutters={4}>
                                 <Col>
                                     <Dragger maxCount={1} beforeUpload={handleupload_traj}>
@@ -214,7 +214,7 @@ export default function ODview() {
                                 {/* <Button type='primary' onClick={()=>{downloadFile(flows, "flows");downloadFile(locations, "locations")}}>downloadFile</Button> */}
                             </Row>
                         </Panel>
-                        <Panel header="OD设置" key="Traj-Settings">
+                        <Panel header="OD设置" key="Settings">
                             <Form {...{
                                 labelCol: { span: 16 },
                                 wrapperCol: { span: 8 },
@@ -313,6 +313,7 @@ export default function ODview() {
                                 </Row>
                             </Form>
                         </Panel>
+
                     </Collapse>
                 </Card>
             </Col>

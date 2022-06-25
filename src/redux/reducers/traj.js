@@ -12,7 +12,7 @@ const initState = {
         fadeAmount: 10,
         clusteringAuto: true,
         clusteringLevel: 10,
-        darkMode: true,
+        darkMode: false,
         maxTopFlowsDisplayNum: 8398,
     },
 }
