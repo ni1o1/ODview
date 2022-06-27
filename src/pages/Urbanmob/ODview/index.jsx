@@ -56,6 +56,7 @@ export default function ODview() {
       ---------------OD数据读取---------------
     */
     //#region
+    const [layernum,setlayernum] = useState(1)
     const handleupload_traj = (file) => {
         console.log(file.name)
         message.loading({ content: '读取数据中', key: 'readcsv', duration: 0 })
@@ -104,12 +105,14 @@ export default function ODview() {
 
                 }
                 if (file.name.slice(-4) == 'json') {
+                    const jsondata = JSON.parse(data)
                     setcustomlayers(
                         [
                             ...customlayers,
                             new GeoJsonLayer({
-                                id: nanoid(),
-                                data: JSON.parse(data),
+                                id: 'Layer'+layernum.toString(),
+                                type:jsondata.features[0].geometry.type,
+                                data: jsondata,
                                 pickable: true,
                                 stroked: true,
                                 filled: true,
@@ -118,12 +121,13 @@ export default function ODview() {
                                 lineWidthMinPixels: 2,
                                 getFillColor: [180, 180, 180],
                                 getLineColor: [180, 180, 180],
-                                getPointRadius: 500,
+                                getPointRadius: 100,
                                 getLineWidth: 1,
                                 getElevation: 30
                             })
                         ]
                     )
+                    setlayernum(layernum+1)
                 }
                 message.destroy('readcsv')
             }
@@ -239,9 +243,9 @@ export default function ODview() {
                                         <p className="ant-upload-drag-icon">
                                             <InboxOutlined />
                                         </p>
-                                        <p className="ant-upload-text">点击或将数据拖到此处导入OD数据或geojson数据（此操作不会上传数据到网络）</p>
+                                        <p className="ant-upload-text">点击或将数据拖到此处</p>
                                         <p className="ant-upload-hint">
-                                            OD数据至少需要四列，包括起点经纬度（slon、slat）与终点经纬度（elon、elat）。可以有计数列（count），如果没有计数列，则在count下拉选=1
+                                        导入OD数据或geojson图层。OD数据至少需要四列，包括起点经纬度（slon、slat）与终点经纬度（elon、elat）。可以有计数列（count），如果没有计数列，则在count下拉选=1
                                         </p>
                                     </Dragger>
                                 </Col>
@@ -252,13 +256,19 @@ export default function ODview() {
                         <Panel header="图层" key="Layers">
                             <Table size='small' columns={[
                                 {
-                                    title: '编号',
-                                    dataIndex: 'index',
-                                    key: 'index',
+                                    title: 'ID',
+                                    dataIndex: 'id',
+                                    key: 'id',
+                                    render: text => text
+                                },{
+                                    title: '类型',
+                                    dataIndex: 'type',
+                                    key: 'type',
                                     render: text => text
                                 }]} dataSource={customlayers.map((layer, index) => {
                                     return {
-                                        index: index
+                                        id: layer.id,
+                                        type:layer.props.type
                                     }
                                 })} />
                         </Panel>:null}
