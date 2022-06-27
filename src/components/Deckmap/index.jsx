@@ -191,7 +191,7 @@ export default function Deckmap() {
 
     if (!info.layer) {
     } else {
-      if (info.layer.id === 'my-flowmap-layer') {
+      if (info.layer.id === 'OD') {
         if (info.object) {
           if (info.object.type == 'flow') {
             return `Count: ${info.object.count}`
