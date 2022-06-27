@@ -1,1 +1,0 @@
-export const setlayerdata_tmp = data => ({ type: 'setlayerdata', data: data })

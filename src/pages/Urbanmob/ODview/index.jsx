@@ -4,17 +4,17 @@ import {
     InfoCircleOutlined, InboxOutlined
 } from '@ant-design/icons';
 import { nanoid } from 'nanoid';
-
 //redux
 import { useDispatch, useMappedState } from 'redux-react-hook'
 import {
     setlocations_tmp,
     setflows_tmp,
-    setconfig_tmp
+    setconfig_tmp,
+    setcustomlayers_tmp
 } from '@/redux/actions/traj'
 import { downloadFile } from '@/utils/downloadFile';
 import axios from 'axios'
-
+import { GeoJsonLayer } from '@deck.gl/layers';
 
 const { Dragger } = Upload;
 const { Title, Paragraph, Text, Link } = Typography;
@@ -35,6 +35,11 @@ export default function ODview() {
     const setconfig = (data) => {
         dispatch(setconfig_tmp(data))
     }
+    const setcustomlayers = (data) => {
+        dispatch(setcustomlayers_tmp(data))
+    }
+
+
     /*
   ---------------redux中取出变量---------------
 */
@@ -46,52 +51,81 @@ export default function ODview() {
         []
     );
     const { traj } = useMappedState(mapState);
-    const { flows, locations, config } = traj
+    const { flows, locations, config, customlayers } = traj
     /*
       ---------------OD数据读取---------------
     */
     //#region
     const handleupload_traj = (file) => {
-        console.log(file)
+        console.log(file.name)
         message.loading({ content: '读取数据中', key: 'readcsv', duration: 0 })
         return new Promise(resolve => {
-
             const reader = new FileReader();
             reader.readAsText(file)
+
             reader.onload = function (f) {
+
                 const data = f.target.result
-                let csvoption
-                if (data.slice(0, data.indexOf('\n')).split(',').map(f => isNaN(f[0])).indexOf(false) == -1) {
-                    //有列名
-                    csvoption = {}
-                } else {
-                    //无列名
-                    csvoption = {
-                        noheader: true
+
+                if (file.name.slice(-3) == 'csv') {
+
+                    let csvoption
+                    if (data.slice(0, data.indexOf('\n')).split(',').map(f => isNaN(f[0])).indexOf(false) == -1) {
+                        //有列名
+                        csvoption = {}
+                    } else {
+                        //无列名
+                        csvoption = {
+                            noheader: true
+                        }
                     }
+                    csv(csvoption).fromString(data).then((jsonObj) => {
+
+                        setisModalVisible(true)
+                        const columns = []
+                        Object.keys(jsonObj[0]).forEach(function (key) {
+                            columns.push({ 'title': key, 'dataIndex': key, 'key': key })
+                        })
+                        setTableinfo({ ...tableinfo, columns, data: jsonObj })
+                        const columnsnames = columns.map(f => f.key)
+                        const SLON = columnsnames[columnsnames.map(f => f.toLowerCase().indexOf('slon') >= 0).indexOf(true)]
+                        const SLAT = columnsnames[columnsnames.map(f => f.toLowerCase().indexOf('slat') >= 0).indexOf(true)]
+                        const ELON = columnsnames[columnsnames.map(f => f.toLowerCase().indexOf('elon') >= 0).indexOf(true)]
+                        const ELAT = columnsnames[columnsnames.map(f => f.toLowerCase().indexOf('elat') >= 0).indexOf(true)]
+                        const COUNT = columnsnames[columnsnames.map(f => f.toLowerCase().indexOf('count') >= 0).indexOf(true)]
+                        form.setFieldsValue({
+                            SLON: typeof SLON === 'undefined' ? columnsnames[0] : SLON,
+                            SLAT: typeof SLAT === 'undefined' ? columnsnames[1] : SLAT,
+                            ELON: typeof ELON === 'undefined' ? columnsnames[2] : ELON,
+                            ELAT: typeof ELAT === 'undefined' ? columnsnames[3] : ELAT,
+                            COUNT: typeof COUNT === 'undefined' ? columnsnames[4] : COUNT,
+                        })
+                    })
+
                 }
-                csv(csvoption).fromString(data).then((jsonObj) => {
-                    message.destroy('readcsv')
-                    setisModalVisible(true)
-                    const columns = []
-                    Object.keys(jsonObj[0]).forEach(function (key) {
-                        columns.push({ 'title': key, 'dataIndex': key, 'key': key })
-                    })
-                    setTableinfo({ ...tableinfo, columns, data: jsonObj })
-                    const columnsnames = columns.map(f => f.key)
-                    const SLON = columnsnames[columnsnames.map(f => f.toLowerCase().indexOf('slon') >= 0).indexOf(true)]
-                    const SLAT = columnsnames[columnsnames.map(f => f.toLowerCase().indexOf('slat') >= 0).indexOf(true)]
-                    const ELON = columnsnames[columnsnames.map(f => f.toLowerCase().indexOf('elon') >= 0).indexOf(true)]
-                    const ELAT = columnsnames[columnsnames.map(f => f.toLowerCase().indexOf('elat') >= 0).indexOf(true)]
-                    const COUNT = columnsnames[columnsnames.map(f => f.toLowerCase().indexOf('count') >= 0).indexOf(true)]
-                    form.setFieldsValue({
-                        SLON: typeof SLON === 'undefined' ? columnsnames[0] : SLON,
-                        SLAT: typeof SLAT === 'undefined' ? columnsnames[1] : SLAT,
-                        ELON: typeof ELON === 'undefined' ? columnsnames[2] : ELON,
-                        ELAT: typeof ELAT === 'undefined' ? columnsnames[3] : ELAT,
-                        COUNT: typeof COUNT === 'undefined' ? columnsnames[4] : COUNT,
-                    })
-                })
+                if (file.name.slice(-4) == 'json') {
+                    setcustomlayers(
+                        [
+                            ...customlayers,
+                            new GeoJsonLayer({
+                                id: nanoid(),
+                                data: JSON.parse(data),
+                                pickable: true,
+                                stroked: true,
+                                filled: true,
+                                extruded: true,
+                                lineWidthScale: 20,
+                                lineWidthMinPixels: 2,
+                                getFillColor: [180, 180, 180],
+                                getLineColor: [180, 180, 180],
+                                getPointRadius: 500,
+                                getLineWidth: 1,
+                                getElevation: 30
+                            })
+                        ]
+                    )
+                }
+                message.destroy('readcsv')
             }
         })
     }
@@ -197,7 +231,7 @@ export default function ODview() {
             <Col span={24}>
                 <Card title="OD流向图" extra={<Tooltip title='Import OD data to show flow map'><InfoCircleOutlined /></Tooltip>}
                     bordered={false}>
-                    <Collapse defaultActiveKey={['ImportOD', "Settings",'Layers']}>
+                    <Collapse defaultActiveKey={['ImportOD', "Settings", 'Layers']}>
                         <Panel header="导入OD数据" key="ImportOD">
                             <Row gutters={4}>
                                 <Col>
@@ -205,15 +239,29 @@ export default function ODview() {
                                         <p className="ant-upload-drag-icon">
                                             <InboxOutlined />
                                         </p>
-                                        <p className="ant-upload-text">点击或将数据拖到此处导入数据（此操作不会上传数据到网络）</p>
+                                        <p className="ant-upload-text">点击或将数据拖到此处导入OD数据或geojson数据（此操作不会上传数据到网络）</p>
                                         <p className="ant-upload-hint">
-                                        数据至少需要四列，包括起点经纬度（slon、slat）与终点经纬度（elon、elat）。可以有计数列（count），如果没有计数列，则在count下拉选=1
+                                            OD数据至少需要四列，包括起点经纬度（slon、slat）与终点经纬度（elon、elat）。可以有计数列（count），如果没有计数列，则在count下拉选=1
                                         </p>
                                     </Dragger>
                                 </Col>
                                 {/* <Button type='primary' onClick={()=>{downloadFile(flows, "flows");downloadFile(locations, "locations")}}>downloadFile</Button> */}
                             </Row>
                         </Panel>
+                        {customlayers.length>0?
+                        <Panel header="图层" key="Layers">
+                            <Table size='small' columns={[
+                                {
+                                    title: '编号',
+                                    dataIndex: 'index',
+                                    key: 'index',
+                                    render: text => text
+                                }]} dataSource={customlayers.map((layer, index) => {
+                                    return {
+                                        index: index
+                                    }
+                                })} />
+                        </Panel>:null}
                         <Panel header="OD设置" key="Settings">
                             <Form {...{
                                 labelCol: { span: 16 },

@@ -12,8 +12,10 @@ import { TileLayer } from '@deck.gl/geo-layers';
 import { useDispatch, useMappedState } from 'redux-react-hook'
 import {
   setlocations_tmp,
-  setflows_tmp
+  setflows_tmp,
 } from '@/redux/actions/traj'
+import { GeoJsonLayer } from '@deck.gl/layers';
+import axios from 'axios'
 
 //flowmap
 import {
@@ -31,17 +33,19 @@ export default function Deckmap() {
   //#region
   const mapState = useCallback(
     state => ({
-      traj: state.traj,
-      layer: state.layer
+      traj: state.traj
+
     }),
     []
   );
-  const { traj, layer } = useMappedState(mapState);
+  const { traj } = useMappedState(mapState);
 
-  const { locations, flows, config } = traj
-  const { layerdata } = layer
+  const { locations, flows, config,customlayers } = traj
+
+/*   const[customlayers, setcustomlayers]=useState([])
+
   //dispatch
-  const dispatch = useDispatch()
+  const dispatch = useDispatch() */
 
   //#endregion
   /*
@@ -147,6 +151,7 @@ export default function Deckmap() {
   }, interval, { immediate: true });
   //旋转的按钮
   function rotatecam() {
+    console.log(customlayers)
     setangle(viewState.bearing + 30)
     if (interval != 2000) {
       setInterval(2000)
@@ -244,6 +249,7 @@ export default function Deckmap() {
       getSize: d => 5,
       getColor: d => d.color
     }) : null,
+    ...customlayers,
 new FlowmapLayer({
       id: 'OD',
       data: { locations, flows },

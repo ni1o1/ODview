@@ -15,6 +15,7 @@ const initState = {
         darkMode: false,
         maxTopFlowsDisplayNum: 8398,
     },
+    customlayers: []
 }
 export default function trajReducer(preState = initState, action) {
     const { type, data } = action
@@ -25,6 +26,8 @@ export default function trajReducer(preState = initState, action) {
             return {...preState, flows: data }
         case 'setconfig':
             return {...preState, config: data }
+        case 'setcustomlayers':
+            return {...preState, customlayers: data }
         default:
             return preState;
     }
