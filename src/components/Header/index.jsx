@@ -32,7 +32,7 @@ export default function Header(props) {
             {collapsed ? <PageHeader
                 className="site-page-header"
                 key="site-page-header"
-                title="OD View by 小旭学长"
+                title="ODview交通出行可视化分析系统"
                 subTitle=''
                 avatar={{ src: 'images/logodark_3durbanmob.png', shape: 'square' }}
                 {...props}

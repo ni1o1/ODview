@@ -266,10 +266,7 @@ new FlowmapLayer({
       fadeAmount: config.fadeAmount,
       darkMode: config.darkMode,
       /*       
-            fadeAmount: config.fadeAmount,
-            locationTotalsEnabled: config.locationTotalsEnabled,
             locationLabelsEnabled: config.locationLabelsEnabled,
-            animationEnabled: config.animationEnabled,
             adaptiveScalesEnabled: config.adaptiveScalesEnabled,
             highlightColor: config.highlightColor, */
       getFlowMagnitude: (flow) => flow.count || 0,

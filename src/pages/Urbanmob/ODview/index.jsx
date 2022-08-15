@@ -119,8 +119,9 @@ export default function ODview() {
                                 extruded: true,
                                 lineWidthScale: 20,
                                 lineWidthMinPixels: 2,
-                                getFillColor: [180, 180, 200],
-                                getLineColor: [180, 180, 200],
+                                opacity: 0.8,
+                                getFillColor: [180, 180, 220],
+                                getLineColor: [180, 180, 220],
                                 getPointRadius: 100,
                                 getLineWidth: 1,
                                 getElevation: 30
