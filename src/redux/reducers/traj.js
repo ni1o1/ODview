@@ -14,6 +14,23 @@ const initState = {
         clusteringLevel: 10,
         darkMode: false,
         maxTopFlowsDisplayNum: 8398,
+        analysisMode: 'flow',
+        selectionRole: 'origin',
+        spatialUnit: 'raw',
+        gridSizeKm: 1,
+        h3Resolution: 8,
+        aggregationMode: 'auto',
+        selectedRegion: null,
+        selectionGeometry: null,
+        drawingMode: false,
+        draftSelectionCoordinates: [],
+        selectionProcessing: false,
+        layerVisibility: {
+            flows: true,
+            nodes: true,
+            selection: true,
+        },
+        mapStyle: 'cl38pr5lx001f15nyyersk7in',
     },
     customlayers: []
 }

@@ -1,7 +1,69 @@
-.urbanmoblogo {
-    position: absolute;
-    left: 10px;
-    bottom: 20px;
-    width: 60px;
-    z-index: 1;
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap');
+
+.panel, .ant-modal, .ant-dropdown {
+  font-family: "Manrope", "PingFang SC", sans-serif;
 }
+
+.panel-header {
+  height: 76px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px 0 17px;
+  border-bottom: 1px solid #e5ebe8;
+  background: #fff;
+}
+
+.brand-mark {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+.brand-mark span {
+  position: absolute;
+  left: 4px;
+  width: 22px;
+  height: 1px;
+  background: #159553;
+  transform-origin: center;
+}
+
+.brand-mark span:nth-child(1) { top: 7px; transform: rotate(30deg); }
+.brand-mark span:nth-child(2) { top: 15px; transform: rotate(-30deg); }
+.brand-mark span:nth-child(3) { top: 23px; transform: rotate(30deg); }
+.brand-copy { display: flex; min-width: 0; flex-direction: column; }
+
+.brand-copy b {
+  color: #142019;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: .16em;
+}
+
+.brand-copy small {
+  color: #6b7973;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 8px;
+  margin-top: 7px;
+  letter-spacing: .14em;
+}
+
+.header-actions { display: flex; margin-left: auto; }
+.header-actions .ant-btn, .panel-header--closed .ant-btn { color: #53635c; border-radius: 8px; }
+.header-actions .ant-btn:hover, .panel-header--closed .ant-btn:hover { color: #148e50; background: #eef8f2; }
+.panel-header--closed { height: 58px; padding: 0; justify-content: center; border: 0; }
+.panel-header--closed .ant-btn { width: 42px; height: 42px; }
+
+.map-style-menu {
+  min-width: 160px;
+  padding: 6px !important;
+  border: 1px solid #dce4e0;
+  border-radius: 12px !important;
+  background: #fff !important;
+  box-shadow: 0 16px 42px rgba(26, 42, 34, .16);
+}
+
+.map-style-menu .ant-dropdown-menu-item { color: #26352e; border-radius: 7px; font-size: 12px; }
+.map-style-menu .ant-dropdown-menu-item:hover { color: #116f41; background: #eef8f2; }

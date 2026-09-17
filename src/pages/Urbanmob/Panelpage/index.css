@@ -1,7 +1,4 @@
-.ant-tabs-content {
-    width: 42vw;
-    margin-left: -24px;
-}
+.panel-content { padding: 0 14px 14px; }
 
 @font-face {
     font-family: 'iconfont';

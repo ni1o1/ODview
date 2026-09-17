@@ -1,45 +1,22 @@
-import React, { useState, useEffect } from 'react'
-import { Layout } from 'antd';
-
-
+import React, { useState, useEffect } from 'react';
 import Deckmap from '@@/Deckmap';
-import MyHeader from '@@/Header'
+import MyHeader from '@@/Header';
 import Panelpage from './Panelpage';
 import 'antd/dist/antd.css';
 import './index.css';
-import { useSubscribe, useUnsubscribe } from '@/utils/usePubSub';
-
-const { Sider } = Layout;
+import PubSub from 'pubsub-js';
 
 export default function Urbanmob() {
-
-
-  const [showpanel, setshowpanel] = useState(true)
-  const unsubscribe = useUnsubscribe();//清除更新组件重复订阅的副作用
-  //订阅panel展开收起
-  unsubscribe('showpanel');
-  const updateshowpanel = useSubscribe('showpanel', function (msg: any, data: any) {
-    setshowpanel(data)
-  });
-
-
-  return (
-    <div>
-      <Layout>
-        <Sider
-          width={showpanel?'45%':'50px'}
-          className="panel"
-        >
-          <Layout>
-            <MyHeader />
-            <div style={showpanel ? {} : { height: '0px', overflowY: 'hidden' }}>
-              <Panelpage />
-            </div>
-          </Layout>
-        </Sider>
-        <Deckmap></Deckmap>
-      </Layout>
-    </div>
-  )
-
+  const [showpanel, setShowpanel] = useState(true);
+  useEffect(() => {
+    const token = PubSub.subscribe('showpanel', (_, visible) => setShowpanel(visible));
+    return () => PubSub.unsubscribe(token);
+  }, []);
+  return <main className="urban-shell">
+    <Deckmap />
+    <aside className={`panel ${showpanel ? 'panel--open' : 'panel--closed'}`}>
+      <MyHeader expanded={showpanel} />
+      {showpanel && <div className="panel-scroll"><Panelpage /></div>}
+    </aside>
+  </main>;
 }
