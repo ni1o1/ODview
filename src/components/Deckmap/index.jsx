@@ -213,15 +213,15 @@ export default function Deckmap() {
     getTooltip={getTooltip}
     getCursor={({ isDragging }) => config.drawingMode ? 'crosshair' : isDragging ? 'grabbing' : 'grab'}
   >
-    {config.drawingMode && <div className="drawing-map-prompt" role="status">
-      <b>在地图上点击</b>
-      <span>单击描点 · 双击结束 · {(config.draftSelectionCoordinates || []).length} 个点</span>
-    </div>}
-    <MapView id="baseMap" controller y="0%" height="100%">
+    <MapView key="base-map-view" id="baseMap" controller y="0%" height="100%">
       <StaticMap key="map-canvas" reuseMaps mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} mapStyle={`mapbox://styles/ni1o1/${config.mapStyle}`} preventStyleDiffing>
         <div className="mapboxgl-ctrl-bottom-left" style={{ bottom: '20px' }}><ScaleControl maxWidth={100} unit="metric" /></div>
       </StaticMap>
       <div key="map-navigation" className="mapboxgl-ctrl-bottom-right" style={{ bottom: '80px' }}><NavigationControl /></div>
     </MapView>
+    {config.drawingMode && <div key="drawing-map-prompt" className="drawing-map-prompt" role="status">
+      <b>在地图上点击</b>
+      <span>单击描点 · 双击结束 · {(config.draftSelectionCoordinates || []).length} 个点</span>
+    </div>}
   </DeckGL>;
 }
