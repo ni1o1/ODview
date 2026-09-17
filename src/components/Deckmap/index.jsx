@@ -11,6 +11,7 @@ import { setconfig_tmp } from '@/redux/actions/traj';
 import './index.css';
 
 const MAPBOX_ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+const MAP_CONTROLLER = { doubleClickZoom: false, inertia: true };
 
 class ControllableFlowmapLayer extends FlowmapLayer {
   renderLayers() {
@@ -82,9 +83,9 @@ export default function Deckmap() {
     return () => wrapper?.removeEventListener('contextmenu', preventContextMenu);
   }, []);
 
+  const visibleFlows = config.selectionGeometry && !config.selectionProcessing ? selectedFlows : flows;
   const flowLayer = useMemo(() => {
     const showNodes = layerVisibility.nodes !== false;
-    const visibleFlows = config.selectionGeometry ? selectedFlows : flows;
     if ((!layerVisibility.flows && !showNodes) || !visibleFlows.length) return null;
     return new ControllableFlowmapLayer({
       id: 'OD',
@@ -114,7 +115,7 @@ export default function Deckmap() {
       getLocationCentroid: location => [location.lon, location.lat],
     });
   }, [
-    locations, flows, selectedFlows, config.selectionGeometry, layerVisibility.flows, layerVisibility.nodes,
+    locations, visibleFlows, layerVisibility.flows, layerVisibility.nodes,
     config.opacity, config.colorScheme, config.aggregationMode, config.clusteringLevel,
     config.animationEnabled, config.fadeOpacityEnabled, config.fadeEnabled,
     config.fadeAmount, config.darkMode, config.maxTopFlowsDisplayNum,
@@ -148,7 +149,7 @@ export default function Deckmap() {
   }, [config.draftSelectionCoordinates, config.drawingMode, layerVisibility.selection]);
 
   const getTooltip = useCallback(info => {
-    if (config.drawingMode) return null;
+    if (configRef.current.drawingMode) return null;
     const object = info.object;
     if (!object) return null;
     if (object.type === 'location') {
@@ -163,11 +164,11 @@ export default function Deckmap() {
     }
     if (object.type === 'flow') return `流量: ${object.count}`;
     return null;
-  }, [config.drawingMode]);
+  }, []);
 
   const layers = [...customlayers, flowLayer, selectionLayer, draftPointLayer].filter(Boolean);
-  const layerFilter = useCallback(({ renderPass }) => !config.drawingMode
-    || !renderPass.startsWith('picking'), [config.drawingMode]);
+  const layerFilter = useCallback(({ renderPass }) => !configRef.current.drawingMode
+    || !renderPass.startsWith('picking'), []);
   const onViewStateChange = event => setViewState(event.viewState);
   const finishDrawingAt = useCallback((info, event) => {
     const latest = configRef.current;
@@ -201,27 +202,29 @@ export default function Deckmap() {
     ] }));
   }, [config, dispatch, finishDrawingAt]);
 
-  return <DeckGL
-    layers={layers}
-    layerFilter={layerFilter}
-    viewState={viewState}
-    controller={{ doubleClickZoom: false, dragPan: !config.drawingMode, inertia: true, touchRotate: !config.drawingMode }}
-    style={{ zIndex: 0 }}
-    ContextProvider={MapContext.Provider}
-    onViewStateChange={onViewStateChange}
-    onClick={onMapClick}
-    getTooltip={getTooltip}
-    getCursor={({ isDragging }) => config.drawingMode ? 'crosshair' : isDragging ? 'grabbing' : 'grab'}
-  >
-    <MapView key="base-map-view" id="baseMap" controller y="0%" height="100%">
-      <StaticMap key="map-canvas" reuseMaps mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} mapStyle={`mapbox://styles/ni1o1/${config.mapStyle}`} preventStyleDiffing>
-        <div className="mapboxgl-ctrl-bottom-left" style={{ bottom: '20px' }}><ScaleControl maxWidth={100} unit="metric" /></div>
-      </StaticMap>
-      <div key="map-navigation" className="mapboxgl-ctrl-bottom-right" style={{ bottom: '80px' }}><NavigationControl /></div>
-    </MapView>
-    {config.drawingMode && <div key="drawing-map-prompt" className="drawing-map-prompt" role="status">
+  return <div className="deckmap-root">
+    <DeckGL
+      layers={layers}
+      layerFilter={layerFilter}
+      viewState={viewState}
+      controller={MAP_CONTROLLER}
+      style={{ zIndex: 0 }}
+      ContextProvider={MapContext.Provider}
+      onViewStateChange={onViewStateChange}
+      onClick={onMapClick}
+      getTooltip={getTooltip}
+      getCursor={({ isDragging }) => configRef.current.drawingMode ? 'crosshair' : isDragging ? 'grabbing' : 'grab'}
+    >
+      <MapView id="baseMap" controller={MAP_CONTROLLER} y="0%" height="100%">
+        <StaticMap reuseMaps mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} mapStyle={`mapbox://styles/ni1o1/${config.mapStyle}`} preventStyleDiffing>
+          <div className="mapboxgl-ctrl-bottom-left" style={{ bottom: '20px' }}><ScaleControl maxWidth={100} unit="metric" /></div>
+        </StaticMap>
+        <div className="mapboxgl-ctrl-bottom-right" style={{ bottom: '80px' }}><NavigationControl /></div>
+      </MapView>
+    </DeckGL>
+    {config.drawingMode && <div className="drawing-map-prompt" role="status">
       <b>在地图上点击</b>
       <span>单击描点 · 双击结束 · {(config.draftSelectionCoordinates || []).length} 个点</span>
     </div>}
-  </DeckGL>;
+  </div>;
 }
