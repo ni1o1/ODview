@@ -90,7 +90,7 @@ export default function Deckmap() {
       id: 'OD',
       data: { locations, flows: visibleFlows },
       opacity: config.opacity,
-      pickable: !config.drawingMode,
+      pickable: true,
       colorScheme: config.colorScheme,
       clusteringEnabled: config.aggregationMode !== 'none',
       clusteringAuto: config.aggregationMode === 'auto',
@@ -114,7 +114,7 @@ export default function Deckmap() {
       getLocationCentroid: location => [location.lon, location.lat],
     });
   }, [
-    locations, flows, selectedFlows, config.selectionGeometry, config.drawingMode, layerVisibility.flows, layerVisibility.nodes,
+    locations, flows, selectedFlows, config.selectionGeometry, layerVisibility.flows, layerVisibility.nodes,
     config.opacity, config.colorScheme, config.aggregationMode, config.clusteringLevel,
     config.animationEnabled, config.fadeOpacityEnabled, config.fadeEnabled,
     config.fadeAmount, config.darkMode, config.maxTopFlowsDisplayNum,
@@ -133,8 +133,8 @@ export default function Deckmap() {
     return new GeoJsonLayer({
       id: 'od-selection-area', data,
       pickable: false, filled: true, stroked: true,
-      lineWidthMinPixels: 2, getLineColor: [28, 101, 160, 230],
-      getFillColor: config.drawingMode ? [47, 118, 183, 22] : [47, 118, 183, 38],
+      lineWidthMinPixels: 2, getLineColor: [25, 121, 74, 235],
+      getFillColor: config.drawingMode ? [25, 121, 74, 24] : [25, 121, 74, 42],
     });
   }, [config.draftSelectionCoordinates, config.drawingMode, config.selectionGeometry, layerVisibility.selection]);
 
@@ -143,7 +143,7 @@ export default function Deckmap() {
     return new ScatterplotLayer({
       id: 'od-selection-points', data: config.draftSelectionCoordinates || [], pickable: false,
       radiusUnits: 'pixels', getRadius: 5, stroked: true, lineWidthMinPixels: 2,
-      getPosition: coordinate => coordinate, getFillColor: [255, 255, 255, 255], getLineColor: [28, 101, 160, 255],
+      getPosition: coordinate => coordinate, getFillColor: [255, 255, 255, 255], getLineColor: [25, 121, 74, 255],
     });
   }, [config.draftSelectionCoordinates, config.drawingMode, layerVisibility.selection]);
 
@@ -165,10 +165,9 @@ export default function Deckmap() {
     return null;
   }, [config.drawingMode]);
 
-  const displayCustomLayers = useMemo(() => config.drawingMode
-    ? customlayers.map(layer => layer.clone({ pickable: false }))
-    : customlayers, [config.drawingMode, customlayers]);
-  const layers = [...displayCustomLayers, flowLayer, selectionLayer, draftPointLayer].filter(Boolean);
+  const layers = [...customlayers, flowLayer, selectionLayer, draftPointLayer].filter(Boolean);
+  const layerFilter = useCallback(({ renderPass }) => !config.drawingMode
+    || !renderPass.startsWith('picking'), [config.drawingMode]);
   const onViewStateChange = event => setViewState(event.viewState);
   const finishDrawingAt = useCallback((info, event) => {
     const latest = configRef.current;
@@ -204,6 +203,7 @@ export default function Deckmap() {
 
   return <DeckGL
     layers={layers}
+    layerFilter={layerFilter}
     viewState={viewState}
     controller={{ doubleClickZoom: false, dragPan: !config.drawingMode, inertia: true, touchRotate: !config.drawingMode }}
     style={{ zIndex: 0 }}

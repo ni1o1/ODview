@@ -15,11 +15,11 @@
     left: 50%;
     min-width: 168px;
     padding: 9px 14px 10px;
-    border: 1px solid rgba(27, 91, 139, .24);
+    border: 1px solid rgba(25, 121, 74, .28);
     border-radius: 10px;
-    color: #153d5a;
+    color: #155d39;
     background: rgba(255, 255, 255, .94);
-    box-shadow: 0 8px 24px rgba(20, 54, 78, .16);
+    box-shadow: 0 8px 24px rgba(20, 78, 48, .14);
     text-align: center;
     pointer-events: none;
     transform: translateX(-50%);
@@ -38,6 +38,6 @@
 
 .drawing-map-prompt span {
     margin-top: 2px;
-    color: #668092;
+    color: #668073;
     font-size: 9px;
 }
