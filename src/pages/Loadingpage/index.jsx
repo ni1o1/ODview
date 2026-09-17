@@ -4,7 +4,7 @@ import './index.css'
 export default function Loadingpage() {
     return (<div >
         <section className='main'>
-            <div class="loading">
+            <div className="loading">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -13,7 +13,7 @@ export default function Loadingpage() {
                 <span></span>
                 <span></span>
             </div>
-            <img className="smallworldailogo" src="./images/logolight_smallworld.png"></img>
+            <img className="smallworldailogo" src="./images/logolight_smallworld.png" alt="SmallWorld" />
         </section>
     </div >)
 }
