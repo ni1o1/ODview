@@ -14,7 +14,6 @@ const initState = {
         clusteringLevel: 10,
         darkMode: false,
         maxTopFlowsDisplayNum: 8398,
-        analysisMode: 'flow',
         selectionRole: 'origin',
         spatialUnit: 'raw',
         gridSizeKm: 1,

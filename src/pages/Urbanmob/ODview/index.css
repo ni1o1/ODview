@@ -232,28 +232,31 @@
 
 .workspace-label b { color: #17231e; font-family: "IBM Plex Mono", monospace; font-size: 11px; }
 .workspace-label small { color: #8a9690; font-size: 9px; font-weight: 400; }
-.analysis-mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
-
-.analysis-mode {
+.region-filter-panel { padding-top: 2px; }
+.region-filter-heading {
   display: flex;
-  flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
-  min-height: 49px;
-  padding: 9px 10px;
-  border: 1px solid #dce4e0;
-  border-radius: 9px;
-  color: #1c2923;
-  background: #fff;
-  text-align: left;
-  cursor: pointer;
-  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 13px;
+  border-bottom: 1px solid #e5ebe8;
 }
-
-.analysis-mode:hover { border-color: #a8c8b6; transform: translateY(-1px); }
-.analysis-mode.active { border-color: #8cbda2; color: #0d663b; background: #edf8f2; box-shadow: inset 3px 0 #179c57; }
-.analysis-mode span { font-size: 12px; font-weight: 600; }
-.analysis-mode small { color: #76827c; font-size: 10px; }
+.region-filter-heading span, .region-filter-heading b, .region-filter-heading small { display: block; }
+.region-filter-heading b { color: #17231e; font-size: 13px; }
+.region-filter-heading small { margin-top: 3px; color: #75827c; font-size: 9px; }
+.region-filter-heading i {
+  flex: 0 0 auto;
+  padding: 4px 7px;
+  border: 1px solid #dce4e0;
+  border-radius: 999px;
+  color: #738079;
+  background: #f7f9f8;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 600;
+}
+.region-filter-heading i.active { border-color: #a8d1ba; color: #0d6a3d; background: #eaf7f0; }
 .analysis-section { margin-top: 16px; padding-top: 14px; border-top: 1px solid #e5ebe8; }
 
 .relation-switch {

@@ -120,16 +120,6 @@ export default function ODview() {
     setConfig(next);
   }, [setConfig]);
 
-  const setAnalysisMode = mode => {
-    const visibilityByMode = {
-      flow: { flows: true, nodes: true },
-      related: { flows: true, nodes: true, selection: true },
-    };
-    updateConfig({ analysisMode: mode,
-      selectionProcessing: mode === 'related' && Boolean(configRef.current.selectionGeometry),
-      layerVisibility: { ...configRef.current.layerVisibility, ...visibilityByMode[mode] } });
-  };
-
   const setLayerVisible = (layer, visible) => updateConfig({
     layerVisibility: { ...configRef.current.layerVisibility, [layer]: visible },
   });
@@ -158,10 +148,6 @@ export default function ODview() {
     { label: '图层', value: customlayers.length + 3, icon: <DatabaseOutlined /> },
   ], [customlayers.length, flows.length, locations.length]);
 
-  const analysisModes = [
-    ['flow', '全局 FlowMap', '完整流向与原生进出节点'],
-    ['related', '区域 FlowMap', '按圈选范围过滤'],
-  ];
   const mapStyles = [
     ['cl38pr5lx001f15nyyersk7in', '明亮 · 中文'], ['ckwfx658z4dpb14ocnz6tky9d', '明亮 · English'],
     ['clvlrr1re03yv01phbhwge3k3', '暗色 · 中文'], ['cjetnd20i1vbi2qqxbh0by7p8', '暗色 · English'],
@@ -190,23 +176,20 @@ export default function ODview() {
     </nav>
 
     {panelTab === 'analysis' && <section className="workspace-panel">
-      <span className="workspace-label">FlowMap 视图</span>
-      <div className="analysis-mode-grid">
-        {analysisModes.map(([key, label, hint]) => <button type="button" key={key} className={`analysis-mode ${config.analysisMode === key ? 'active' : ''}`} onClick={() => setAnalysisMode(key)}>
-          <span>{label}</span><small>{hint}</small>
-        </button>)}
-      </div>
-
-      {config.analysisMode === 'related' && <div className="analysis-section">
-        <span className="workspace-label">选中区域的角色</span>
+      <div className="region-filter-panel">
+        <div className="region-filter-heading">
+          <span><b>区域筛选</b><small>圈选后过滤关联流向</small></span>
+          <i className={selected ? 'active' : ''}>{selected ? '已筛选' : '全局流向'}</i>
+        </div>
+        <span className="workspace-label">筛选区域的角色</span>
         <div className="relation-switch">
           {[['origin', '作为 O'], ['destination', '作为 D'], ['both', '双向']].map(([value, label]) =>
             <button type="button" key={value} className={config.selectionRole === value ? 'active' : ''} onClick={() => updateConfig({ selectionRole: value, selectionProcessing: Boolean(config.selectionGeometry) })}>{label}</button>
           )}
         </div>
-        <p className="interaction-tip">在地图上圈出真正关心的范围。系统会先找到圈内原始节点，再把相关 OD 交给 FlowMap 聚类和绘制。</p>
+        <p className="interaction-tip">当前默认展示全部流向。点击筛选区域并在地图上圈选后，只显示与该区域相关的 OD。</p>
         {!config.drawingMode ? <button type="button" className="draw-region-button" onClick={startDrawing}>
-          <span>{selected ? '重新圈选区域' : '开始圈选区域'}</span><small>自由多边形</small>
+          <span>{selected ? '重新筛选区域' : '筛选区域'}</span><small>自由多边形</small>
         </button> : <div className="drawing-actions">
           <div><b>正在圈选</b><small>在地图上逐点单击 · {(config.draftSelectionCoordinates || []).length} 个点</small></div>
           <button type="button" onClick={finishDrawing} disabled={(config.draftSelectionCoordinates || []).length < 3}>完成圈选</button>
@@ -217,7 +200,7 @@ export default function ODview() {
           <div className="selected-stats"><span className="origin">出发 {selected.outgoing.toLocaleString()}</span><span className="destination">到达 {selected.incoming.toLocaleString()}</span></div>
           <button type="button" className="clear-selection" onClick={() => updateConfig({ drawingMode: false, draftSelectionCoordinates: [], selectionGeometry: null, selectedRegion: null, selectionProcessing: false })}>清除选区</button>
         </div> : <div className="empty-selection">尚未圈选分析区域</div>}
-      </div>}
+      </div>
     </section>}
 
     {panelTab === 'layers' && <section className="workspace-panel">

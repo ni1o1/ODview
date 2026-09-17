@@ -57,7 +57,7 @@ export default function Deckmap() {
   }, [locations, flows]);
 
   useEffect(() => {
-    if (config.analysisMode !== 'related' || !config.selectionGeometry) {
+    if (!config.selectionGeometry) {
       setSelectedFlows([]);
       return;
     }
@@ -67,7 +67,7 @@ export default function Deckmap() {
     selectionWorkerRef.current?.postMessage({
       type: 'select', requestId, geometry: config.selectionGeometry, role: config.selectionRole,
     });
-  }, [config.analysisMode, config.selectionGeometry, config.selectionRole]);
+  }, [config.selectionGeometry, config.selectionRole]);
 
   useEffect(() => {
     if (!locations.length) return;
@@ -84,7 +84,7 @@ export default function Deckmap() {
 
   const flowLayer = useMemo(() => {
     const showNodes = layerVisibility.nodes !== false;
-    const visibleFlows = config.analysisMode === 'related' ? selectedFlows : flows;
+    const visibleFlows = config.selectionGeometry ? selectedFlows : flows;
     if ((!layerVisibility.flows && !showNodes) || !visibleFlows.length) return null;
     return new ControllableFlowmapLayer({
       id: 'OD',
@@ -114,14 +114,14 @@ export default function Deckmap() {
       getLocationCentroid: location => [location.lon, location.lat],
     });
   }, [
-    locations, flows, selectedFlows, config.analysisMode, layerVisibility.flows, layerVisibility.nodes,
+    locations, flows, selectedFlows, config.selectionGeometry, layerVisibility.flows, layerVisibility.nodes,
     config.opacity, config.colorScheme, config.aggregationMode, config.clusteringLevel,
     config.animationEnabled, config.fadeOpacityEnabled, config.fadeEnabled,
     config.fadeAmount, config.darkMode, config.maxTopFlowsDisplayNum,
   ]);
 
   const selectionLayer = useMemo(() => {
-    if (config.analysisMode !== 'related' || layerVisibility.selection === false) return null;
+    if (layerVisibility.selection === false) return null;
     const draft = config.draftSelectionCoordinates || [];
     const draftGeometry = draft.length > 2
       ? { type: 'Polygon', coordinates: [[...draft, draft[0]]] }
@@ -136,7 +136,7 @@ export default function Deckmap() {
       lineWidthMinPixels: 2, getLineColor: [28, 101, 160, 230],
       getFillColor: config.drawingMode ? [47, 118, 183, 22] : [47, 118, 183, 38],
     });
-  }, [config.analysisMode, config.draftSelectionCoordinates, config.drawingMode, config.selectionGeometry, layerVisibility.selection]);
+  }, [config.draftSelectionCoordinates, config.drawingMode, config.selectionGeometry, layerVisibility.selection]);
 
   const draftPointLayer = useMemo(() => {
     if (!config.drawingMode || layerVisibility.selection === false) return null;
