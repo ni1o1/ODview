@@ -170,12 +170,37 @@ export default function Deckmap() {
     : customlayers, [config.drawingMode, customlayers]);
   const layers = [...displayCustomLayers, flowLayer, selectionLayer, draftPointLayer].filter(Boolean);
   const onViewStateChange = event => setViewState(event.viewState);
-  const onMapClick = useCallback(info => {
+  const finishDrawingAt = useCallback((info, event) => {
+    const latest = configRef.current;
+    if (!latest.drawingMode || !info.coordinate) return;
+    event?.stopPropagation?.();
+    const points = [...(latest.draftSelectionCoordinates || []), info.coordinate.slice(0, 2)]
+      .filter((point, index, all) => index === 0
+        || Math.abs(point[0] - all[index - 1][0]) > 1e-10
+        || Math.abs(point[1] - all[index - 1][1]) > 1e-10);
+    if (points.length < 3) {
+      dispatch(setconfig_tmp({ ...latest, draftSelectionCoordinates: points }));
+      return;
+    }
+    dispatch(setconfig_tmp({
+      ...latest,
+      drawingMode: false,
+      draftSelectionCoordinates: points,
+      selectionGeometry: { type: 'Polygon', coordinates: [[...points, points[0]]] },
+      selectionProcessing: true,
+      selectedRegion: { name: '手绘分析区域', members: 0, outgoing: 0, incoming: 0 },
+    }));
+  }, [dispatch]);
+  const onMapClick = useCallback((info, event) => {
     if (!config.drawingMode || !info.coordinate) return;
+    if (event?.tapCount > 1) {
+      finishDrawingAt(info, event);
+      return;
+    }
     dispatch(setconfig_tmp({ ...config, draftSelectionCoordinates: [
       ...(config.draftSelectionCoordinates || []), info.coordinate.slice(0, 2),
     ] }));
-  }, [config, dispatch]);
+  }, [config, dispatch, finishDrawingAt]);
 
   return <DeckGL
     layers={layers}
@@ -190,7 +215,7 @@ export default function Deckmap() {
   >
     {config.drawingMode && <div className="drawing-map-prompt" role="status">
       <b>在地图上点击</b>
-      <span>逐点围出区域 · {(config.draftSelectionCoordinates || []).length} 个点</span>
+      <span>单击描点 · 双击结束 · {(config.draftSelectionCoordinates || []).length} 个点</span>
     </div>}
     <MapView id="baseMap" controller y="0%" height="100%">
       <StaticMap key="map-canvas" reuseMaps mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} mapStyle={`mapbox://styles/ni1o1/${config.mapStyle}`} preventStyleDiffing>

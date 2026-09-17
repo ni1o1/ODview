@@ -171,7 +171,7 @@ export default function ODview() {
           <span>筛选区域</span><small>在地图上圈选</small>
         </button>}
         {config.drawingMode && <div className="drawing-actions">
-          <div><b>正在圈选</b><small>在地图上逐点单击 · {(config.draftSelectionCoordinates || []).length} 个点</small></div>
+          <div><b>正在圈选</b><small>单击描点 · 双击结束 · {(config.draftSelectionCoordinates || []).length} 个点</small></div>
           <button type="button" onClick={finishDrawing} disabled={(config.draftSelectionCoordinates || []).length < 3}>完成圈选</button>
           <button type="button" className="cancel" onClick={() => updateConfig({ drawingMode: false, draftSelectionCoordinates: [] })}>取消</button>
         </div>}
