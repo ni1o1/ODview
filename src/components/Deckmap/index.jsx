@@ -90,7 +90,7 @@ export default function Deckmap() {
       id: 'OD',
       data: { locations, flows: visibleFlows },
       opacity: config.opacity,
-      pickable: true,
+      pickable: !config.drawingMode,
       colorScheme: config.colorScheme,
       clusteringEnabled: config.aggregationMode !== 'none',
       clusteringAuto: config.aggregationMode === 'auto',
@@ -114,7 +114,7 @@ export default function Deckmap() {
       getLocationCentroid: location => [location.lon, location.lat],
     });
   }, [
-    locations, flows, selectedFlows, config.selectionGeometry, layerVisibility.flows, layerVisibility.nodes,
+    locations, flows, selectedFlows, config.selectionGeometry, config.drawingMode, layerVisibility.flows, layerVisibility.nodes,
     config.opacity, config.colorScheme, config.aggregationMode, config.clusteringLevel,
     config.animationEnabled, config.fadeOpacityEnabled, config.fadeEnabled,
     config.fadeAmount, config.darkMode, config.maxTopFlowsDisplayNum,
@@ -148,6 +148,7 @@ export default function Deckmap() {
   }, [config.draftSelectionCoordinates, config.drawingMode, layerVisibility.selection]);
 
   const getTooltip = useCallback(info => {
+    if (config.drawingMode) return null;
     const object = info.object;
     if (!object) return null;
     if (object.type === 'location') {
@@ -162,9 +163,12 @@ export default function Deckmap() {
     }
     if (object.type === 'flow') return `流量: ${object.count}`;
     return null;
-  }, []);
+  }, [config.drawingMode]);
 
-  const layers = [...customlayers, flowLayer, selectionLayer, draftPointLayer].filter(Boolean);
+  const displayCustomLayers = useMemo(() => config.drawingMode
+    ? customlayers.map(layer => layer.clone({ pickable: false }))
+    : customlayers, [config.drawingMode, customlayers]);
+  const layers = [...displayCustomLayers, flowLayer, selectionLayer, draftPointLayer].filter(Boolean);
   const onViewStateChange = event => setViewState(event.viewState);
   const onMapClick = useCallback(info => {
     if (!config.drawingMode || !info.coordinate) return;
@@ -176,13 +180,18 @@ export default function Deckmap() {
   return <DeckGL
     layers={layers}
     viewState={viewState}
-    controller={{ doubleClickZoom: false, inertia: true, touchRotate: true }}
+    controller={{ doubleClickZoom: false, dragPan: !config.drawingMode, inertia: true, touchRotate: !config.drawingMode }}
     style={{ zIndex: 0 }}
     ContextProvider={MapContext.Provider}
     onViewStateChange={onViewStateChange}
     onClick={onMapClick}
     getTooltip={getTooltip}
+    getCursor={({ isDragging }) => config.drawingMode ? 'crosshair' : isDragging ? 'grabbing' : 'grab'}
   >
+    {config.drawingMode && <div className="drawing-map-prompt" role="status">
+      <b>在地图上点击</b>
+      <span>逐点围出区域 · {(config.draftSelectionCoordinates || []).length} 个点</span>
+    </div>}
     <MapView id="baseMap" controller y="0%" height="100%">
       <StaticMap key="map-canvas" reuseMaps mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} mapStyle={`mapbox://styles/ni1o1/${config.mapStyle}`} preventStyleDiffing>
         <div className="mapboxgl-ctrl-bottom-left" style={{ bottom: '20px' }}><ScaleControl maxWidth={100} unit="metric" /></div>

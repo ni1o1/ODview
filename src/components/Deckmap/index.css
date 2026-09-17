@@ -7,3 +7,37 @@
     color: white;
     pointer-events: none;
 }
+
+.drawing-map-prompt {
+    position: absolute;
+    z-index: 8;
+    top: 18px;
+    left: 50%;
+    min-width: 168px;
+    padding: 9px 14px 10px;
+    border: 1px solid rgba(27, 91, 139, .24);
+    border-radius: 10px;
+    color: #153d5a;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 8px 24px rgba(20, 54, 78, .16);
+    text-align: center;
+    pointer-events: none;
+    transform: translateX(-50%);
+    backdrop-filter: blur(10px);
+}
+
+.drawing-map-prompt b,
+.drawing-map-prompt span {
+    display: block;
+}
+
+.drawing-map-prompt b {
+    font-size: 12px;
+    letter-spacing: .02em;
+}
+
+.drawing-map-prompt span {
+    margin-top: 2px;
+    color: #668092;
+    font-size: 9px;
+}

@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Typography, Col, Upload, message, Switch, Table, Modal, Row, Slider,
   Form, Select, Tag, Progress, Space,
 } from 'antd';
-import { ApartmentOutlined, DatabaseOutlined, InboxOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, InboxOutlined } from '@ant-design/icons';
 import { useDispatch, useMappedState } from 'redux-react-hook';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import { setlocations_tmp, setflows_tmp, setconfig_tmp, setcustomlayers_tmp } from '@/redux/actions/traj';
@@ -18,7 +18,7 @@ export default function ODview() {
   const dispatch = useDispatch();
   const mapState = useCallback(state => ({ traj: state.traj }), []);
   const { traj } = useMappedState(mapState);
-  const { flows, locations, config, customlayers } = traj;
+  const { flows, config, customlayers } = traj;
   const configRef = useRef(config);
   const [mappingForm] = Form.useForm();
   const workerRef = useRef(null);
@@ -142,12 +142,6 @@ export default function ODview() {
       selectedRegion: { name: '手绘分析区域', members: 0, outgoing: 0, incoming: 0 } });
   };
   const columnNames = tableinfo.columns.map(column => column.key);
-  const statItems = useMemo(() => [
-    { label: '流向', value: flows.length.toLocaleString(), icon: <ThunderboltOutlined /> },
-    { label: '节点', value: locations.length.toLocaleString(), icon: <ApartmentOutlined /> },
-    { label: '图层', value: customlayers.length + 3, icon: <DatabaseOutlined /> },
-  ], [customlayers.length, flows.length, locations.length]);
-
   const mapStyles = [
     ['cl38pr5lx001f15nyyersk7in', '明亮 · 中文'], ['ckwfx658z4dpb14ocnz6tky9d', '明亮 · English'],
     ['clvlrr1re03yv01phbhwge3k3', '暗色 · 中文'], ['cjetnd20i1vbi2qqxbh0by7p8', '暗色 · English'],
@@ -156,10 +150,6 @@ export default function ODview() {
   const selected = config.selectedRegion;
 
   return <div className="od-workspace">
-    <div className="od-summary">{statItems.map(item => <div className="od-stat" key={item.label}>
-      <span className="od-stat-icon">{item.icon}</span><span><b>{item.value}</b><small>{item.label}</small></span>
-    </div>)}</div>
-
     <section className="import-priority">
       <div className="import-priority-title"><span><DatabaseOutlined /><b>导入你的 OD 数据</b></span><small>CSV · GeoJSON</small></div>
       <Dragger className="od-uploader compact" maxCount={1} beforeUpload={handleUpload} showUploadList={false} disabled={busy}>
