@@ -196,7 +196,7 @@
 
 .workspace-tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 4px;
   margin: 0 14px 12px;
   padding: 4px;
@@ -233,30 +233,6 @@
 .workspace-label b { color: #17231e; font-family: "IBM Plex Mono", monospace; font-size: 11px; }
 .workspace-label small { color: #8a9690; font-size: 9px; font-weight: 400; }
 .region-filter-panel { padding-top: 2px; }
-.region-filter-heading {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
-  padding-bottom: 13px;
-  border-bottom: 1px solid #e5ebe8;
-}
-.region-filter-heading span, .region-filter-heading b, .region-filter-heading small { display: block; }
-.region-filter-heading b { color: #17231e; font-size: 13px; }
-.region-filter-heading small { margin-top: 3px; color: #75827c; font-size: 9px; }
-.region-filter-heading i {
-  flex: 0 0 auto;
-  padding: 4px 7px;
-  border: 1px solid #dce4e0;
-  border-radius: 999px;
-  color: #738079;
-  background: #f7f9f8;
-  font-size: 9px;
-  font-style: normal;
-  font-weight: 600;
-}
-.region-filter-heading i.active { border-color: #a8d1ba; color: #0d6a3d; background: #eaf7f0; }
 .analysis-section { margin-top: 16px; padding-top: 14px; border-top: 1px solid #e5ebe8; }
 
 .relation-switch {
@@ -279,7 +255,6 @@
 }
 
 .relation-switch button.active { color: #17231e; background: #fff; box-shadow: 0 1px 4px rgba(24, 42, 33, .12); font-weight: 600; }
-.interaction-tip { margin: 10px 0; padding: 9px 10px; border-left: 3px solid #2f76b7; color: #5e6d66; background: #f2f7fb; font-size: 10px; line-height: 1.55; }
 .draw-region-button {
   width: 100%;
   display: flex;
@@ -306,21 +281,19 @@
 .drawing-actions button { padding: 6px 8px; border: 0; border-radius: 6px; color: #fff; background: #2f76b7; font-size: 10px; cursor: pointer; }
 .drawing-actions button:disabled { color: #8b9992; background: #e1e7e4; cursor: not-allowed; }
 .drawing-actions button.cancel { color: #66736d; background: transparent; }
-.flowmap-native-note { margin-bottom: 16px; padding: 11px 12px; border: 1px solid #cddcec; border-radius: 9px; background: #f4f8fc; }
-.flowmap-native-note b, .flowmap-native-note span { display: block; }
-.flowmap-native-note b { color: #245f8e; font-size: 11px; }
-.flowmap-native-note span { margin-top: 4px; color: #637681; font-size: 9px; line-height: 1.55; }
-.selected-region, .empty-selection { padding: 11px; border: 1px solid #dce4e0; border-radius: 9px; background: #fff; }
+.selected-region { padding: 11px; border: 1px solid #dce4e0; border-radius: 9px; background: #fff; }
 .selected-region > div:first-child { display: flex; justify-content: space-between; gap: 8px; }
 .selected-region strong { color: #17231e; font-size: 12px; }
-.selected-region small, .empty-selection { color: #738079; font-size: 10px; }
+.selected-region small { color: #738079; font-size: 10px; }
+.selection-role-label { margin-top: 13px; }
 .selected-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 9px; }
 .selected-stats span { padding: 6px 7px; border-radius: 7px; font-size: 10px; }
 .selected-stats .origin { color: #0d6a3d; background: #e9f6ef; }
 .selected-stats .destination { color: #a3461f; background: #fff0e9; }
-.clear-selection { width: 100%; margin-top: 8px; padding: 6px; border: 0; color: #64716b; background: transparent; font-size: 10px; cursor: pointer; }
+.selection-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+.selection-actions button { padding: 7px; border: 0; border-radius: 7px; color: #285f85; background: #eef5fa; font-size: 10px; cursor: pointer; }
+.clear-selection { margin: 0; color: #64716b !important; background: #f4f7f5 !important; }
 .clear-selection:hover { color: #17231e; background: #f4f7f5; }
-.empty-selection { text-align: center; background: #f8faf9; }
 .selection-processing { display: flex; align-items: center; gap: 8px; padding: 12px; border: 1px solid #cddcec; border-radius: 9px; color: #45687f; background: #f4f8fc; font-size: 10px; }
 .selection-processing i { width: 9px; height: 9px; border: 2px solid #b6cada; border-top-color: #2f76b7; border-radius: 50%; animation: selection-spin .7s linear infinite; }
 @keyframes selection-spin { to { transform: rotate(360deg); } }

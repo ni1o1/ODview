@@ -170,55 +170,48 @@ export default function ODview() {
     </section>
 
     <nav className="workspace-tabs" aria-label="OD 分析功能">
-      {[['analysis', '分析'], ['layers', '图层'], ['style', '样式']].map(([key, label]) =>
+      {[['analysis', '分析'], ['display', '图层样式']].map(([key, label]) =>
         <button type="button" key={key} className={panelTab === key ? 'active' : ''} onClick={() => setPanelTab(key)}>{label}</button>
       )}
     </nav>
 
     {panelTab === 'analysis' && <section className="workspace-panel">
       <div className="region-filter-panel">
-        <div className="region-filter-heading">
-          <span><b>区域筛选</b><small>圈选后过滤关联流向</small></span>
-          <i className={selected ? 'active' : ''}>{selected ? '已筛选' : '全局流向'}</i>
-        </div>
-        <span className="workspace-label">筛选区域的角色</span>
-        <div className="relation-switch">
-          {[['origin', '作为 O'], ['destination', '作为 D'], ['both', '双向']].map(([value, label]) =>
-            <button type="button" key={value} className={config.selectionRole === value ? 'active' : ''} onClick={() => updateConfig({ selectionRole: value, selectionProcessing: Boolean(config.selectionGeometry) })}>{label}</button>
-          )}
-        </div>
-        <p className="interaction-tip">当前默认展示全部流向。点击筛选区域并在地图上圈选后，只显示与该区域相关的 OD。</p>
-        {!config.drawingMode ? <button type="button" className="draw-region-button" onClick={startDrawing}>
-          <span>{selected ? '重新筛选区域' : '筛选区域'}</span><small>自由多边形</small>
-        </button> : <div className="drawing-actions">
+        {!config.drawingMode && !selected && !config.selectionProcessing && <button type="button" className="draw-region-button" onClick={startDrawing}>
+          <span>筛选区域</span><small>在地图上圈选</small>
+        </button>}
+        {config.drawingMode && <div className="drawing-actions">
           <div><b>正在圈选</b><small>在地图上逐点单击 · {(config.draftSelectionCoordinates || []).length} 个点</small></div>
           <button type="button" onClick={finishDrawing} disabled={(config.draftSelectionCoordinates || []).length < 3}>完成圈选</button>
           <button type="button" className="cancel" onClick={() => updateConfig({ drawingMode: false, draftSelectionCoordinates: [] })}>取消</button>
         </div>}
-        {config.selectionProcessing ? <div className="selection-processing"><i />正在建立区域 OD 索引…</div> : selected ? <div className="selected-region">
+        {config.selectionProcessing ? <div className="selection-processing"><i />正在筛选关联流向…</div> : selected && <div className="selected-region">
           <div><strong>{selected.name}</strong><small>{`${selected.members.toLocaleString()} 个圈内节点`}</small></div>
+          <span className="workspace-label selection-role-label">关联方式</span>
+          <div className="relation-switch">
+            {[['origin', '作为 O'], ['destination', '作为 D'], ['both', '双向']].map(([value, label]) =>
+              <button type="button" key={value} className={config.selectionRole === value ? 'active' : ''} onClick={() => updateConfig({ selectionRole: value, selectionProcessing: true })}>{label}</button>
+            )}
+          </div>
           <div className="selected-stats"><span className="origin">出发 {selected.outgoing.toLocaleString()}</span><span className="destination">到达 {selected.incoming.toLocaleString()}</span></div>
-          <button type="button" className="clear-selection" onClick={() => updateConfig({ drawingMode: false, draftSelectionCoordinates: [], selectionGeometry: null, selectedRegion: null, selectionProcessing: false })}>清除选区</button>
-        </div> : <div className="empty-selection">尚未圈选分析区域</div>}
+          <div className="selection-actions"><button type="button" onClick={startDrawing}>重新筛选</button><button type="button" className="clear-selection" onClick={() => updateConfig({ drawingMode: false, draftSelectionCoordinates: [], selectionGeometry: null, selectedRegion: null, selectionProcessing: false })}>清除</button></div>
+        </div>}
       </div>
     </section>}
 
-    {panelTab === 'layers' && <section className="workspace-panel">
+    {panelTab === 'display' && <section className="workspace-panel">
       <div className="control-block"><label className="workspace-label">底图</label><Select value={config.mapStyle} onChange={setMapStyle}>{mapStyles.map(([value, label]) => <Option key={value} value={value}>{label}</Option>)}</Select></div>
       <div className="analysis-section"><span className="workspace-label">数据图层</span>
         {[
           ['flows', '#2f76b7', 'OD 流向', `${flows.length.toLocaleString()} 条`],
           ['nodes', '#506f9b', 'FlowMap 节点', '原生进出量分瓣圆'],
-          ['selection', '#2f76b7', '分析选区', '手绘多边形及高亮'],
+          ...((config.selectionGeometry || config.drawingMode) ? [['selection', '#2f76b7', '分析选区', '手绘多边形及高亮']] : []),
         ].map(([key, color, label, hint]) => <div className="layer-row" key={key}><i style={{ background: color }} /><span><b>{label}</b><small>{hint}</small></span><Switch size="small" checked={Boolean(config.layerVisibility?.[key])} onChange={checked => setLayerVisible(key, checked)} /></div>)}
       </div>
       {customlayers.length > 0 && <div className="analysis-section"><span className="workspace-label">导入图层</span>{customlayers.map(layer => <div className="layer-row" key={layer.id}><i style={{ background: '#8f70b5' }} /><span><b>{layer.id}</b><small>{layer.props.type || 'GeoJSON'}</small></span><Switch size="small" checked={layer.props.visible !== false} onChange={visible => setCustomLayerVisible(layer.id, visible)} /></div>)}</div>}
-    </section>}
-
-    {panelTab === 'style' && <section className="workspace-panel">
-      <div className="flowmap-native-note"><b>FlowMap 原生解析</b><span>流向、节点进出量、缩放聚类与区域过滤均使用同一套 FlowMap 数据管线。</span></div>
-      <div className="control-block"><label className="workspace-label">FlowMap 聚类</label><Select value={config.aggregationMode} onChange={aggregationMode => updateConfig({ aggregationMode })}><Option value="none">不聚类</Option><Option value="auto">自动（跟随缩放）</Option><Option value="manual">手动层级</Option></Select></div>
+      <div className="analysis-section"><div className="control-block"><label className="workspace-label">FlowMap 聚类</label><Select value={config.aggregationMode} onChange={aggregationMode => updateConfig({ aggregationMode })}><Option value="none">不聚类</Option><Option value="auto">自动（跟随缩放）</Option><Option value="manual">手动层级</Option></Select></div>
       {config.aggregationMode === 'manual' && <div className="control-block"><label className="workspace-label">聚类层级 <b>{config.clusteringLevel}</b></label><Slider min={0} max={20} step={1} value={config.clusteringLevel} onChange={clusteringLevel => updateConfig({ clusteringLevel })} /></div>}
+      </div>
       <div className="analysis-section"><span className="workspace-label">流向样式</span>
         <div className="control-row"><div><label className="workspace-label">色带</label><Select value={config.colorScheme} onChange={colorScheme => updateConfig({ colorScheme })}>{['Blues', 'BluGrn', 'Cool', 'DarkMint', 'Emrld', 'Inferno', 'Magma', 'Mint', 'Oranges', 'Plasma', 'Sunset', 'Teal', 'Viridis', 'Warm'].map(value => <Option value={value} key={value}>{value}</Option>)}</Select></div><div><label className="workspace-label">透明度</label><Slider min={0} max={1} step={0.05} value={config.opacity} onChange={opacity => updateConfig({ opacity })} /></div></div>
       </div>
